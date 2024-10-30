@@ -1,6 +1,6 @@
 ---
 title: "STAT 331 Portfolio"
-author: "Your Name Goes Here"
+author: "Stella Raymond"
 format: 
   html: 
     self-contained: true
@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an __.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -23,7 +23,10 @@ execute:
 
 ```{r}
 #| label: wd-1-csv
-
+#This originated from Lab 2 Challenge, the very first load in. I removed library(viridis) becuase that is not relevant here.
+library(tidyverse)
+library("here")
+surveys <- read_csv(here::here("data","surveys.csv"))
 ```
 
 -   `xlsx`
@@ -44,6 +47,20 @@ execute:
 
 ```{r}
 #| label: wd-2
+#This originated from Lab 4 Q4. Here I select only region, study_year, and mhi_2018 to remain within the dataset)
+ca_childcare |>
+  filter(study_year %in% c("2018", 
+                           "2008")) |>
+  select(region, 
+         study_year, 
+         mhi_2018) |>
+  group_by(region, study_year) |>
+  summarise(median_region = median(mhi_2018)) |>
+  pivot_wider(id_cols = region,
+             names_from = study_year, 
+             values_from = median_region,
+             names_prefix = "mhi_in_")|>
+  ungroup()
 
 ```
 
@@ -53,14 +70,33 @@ execute:
 
 ```{r}
 #| label: wd-3-numeric
-
+#This originated from Lab 4 Q4. Here I filter out year 2008 and 2018.
+ca_childcare |>
+  filter(study_year %in% c("2018", 
+                           "2008")) |>
+  select(region, 
+         study_year, 
+         mhi_2018) |>
+  group_by(region, study_year) |>
+  summarise(median_region = median(mhi_2018)) |>
+  pivot_wider(id_cols = region,
+             names_from = study_year, 
+             values_from = median_region,
+             names_prefix = "mhi_in_")|>
+  ungroup()
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-3-string
-
+#This question originates from Lab 5. In this particular chunk, I filter using str_detect so I could extract all Annabels regardless of 
+person |>
+  filter(
+    address_street_name == "Franklin Ave",
+    str_detect(name, "Annabel")) |>
+  pull(name,
+       id)
 ```
 
 -   factor
@@ -74,7 +110,20 @@ execute:
 
 ```{r}
 #| label: wd-3-date
+#This code comes from Lab 5. Originally, I did not convert the dates into lubridate dates. However, 
+crime_scene_report |>
+  filter(date == 20180115,
+         type == "murder",
+         city == "SQL City") |>
+  pull(description)
 
+#Here is the updated code USING lubridate instead of filtering it just as a numeric value
+crime_scene_report |>
+  mutate(date = ymd(date))|>
+  filter(date == "2018-01-15",
+         type == "murder",
+         city == "SQL City") |>
+  pull(description)
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -97,14 +146,37 @@ execute:
 
 ```{r}
 #| label: wd-4-factor
-
+#The question is from Lab 4 Q6. In this code chunk, I am changing age into a factor that includes all three age groups. Afterwards, I recode it and change the names.
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool"))
 ```
 
 -   date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-4-date
-
+#As mentioned in WD-3, this line of code comes from Lab 5 and is altered from my original submission to include a date mutation with lubridate using ymd()
+crime_scene_report |>
+  mutate(date = ymd(date))|>
+  filter(date == "2018-01-15",
+         type == "murder",
+         city == "SQL City") |>
+  pull(description)
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -159,14 +231,36 @@ execute:
 
 ```{r}
 #| label: wd-7-long
-
+#This code originates from a small portion of Lab 4's Question 6. Here I take the three separate age colomns and combine them into a single colomn.
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price")
 ```
 
 -   `pivot_wider()`
 
 ```{r}
 #| label: wd-7-wide
-
+#This is from Lab 4 question 4. Here, I make two new colomns out of the two years from study_year.
+ca_childcare |>
+  filter(study_year %in% c("2018", 
+                           "2008")) |>
+  select(region, 
+         study_year, 
+         mhi_2018) |>
+  group_by(region, study_year) |>
+  summarise(median_region = median(mhi_2018)) |>
+  pivot_wider(id_cols = region,
+             names_from = study_year, 
+             values_from = median_region,
+             names_prefix = "mhi_in_")|>
+  ungroup()
 ```
 
 ## Reproducibility
@@ -205,6 +299,16 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-3-example
 
+ADD CONTEXT!!!
+
+ca_childcare |>
+  filter(study_year == "2018") |>
+  select(region, 
+         study_year, 
+         mcsa) |>
+  group_by(region)|>
+  summarise(median_region = median(mcsa))|>
+  slice_min(median_region)
 ```
 
 -   Example of function stops
@@ -222,7 +326,44 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-1-num
-
+#This is from Lab 4 Question 6. Here, the two numeric variables are year and cost. 
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")
+                   ),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool"))|>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                           .x = study_year,
+                                           .y = price)
+                       )
+         )+
+  geom_smooth() +
+  geom_point() +
+  facet_wrap(~age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
+  theme_bw() +
+  labs(x = "Study Year",
+       y = "",
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7)) 
 ```
 
 -   at least one numeric variable and one categorical variable
@@ -243,7 +384,43 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-2-date
-
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")
+                   ),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool"))|>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                           .x = study_year,
+                                           .y = price)
+                       )
+         )+
+  geom_smooth() +
+  geom_point() +
+  facet_wrap(~age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
+  theme_bw() +
+  labs(x = "Study Year",
+       y = "",
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7))
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
@@ -252,21 +429,103 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-2-1
-
+#Here is a line of code from Lab 2 question 16. I implement two ways of increasing readiblity: altering species to the y-axis and using the subtitle in place of a y-axis label.
+ggplot(data = surveys,
+       mapping = aes(
+         x = weight, 
+         y = species,
+         )
+       ) +
+  geom_jitter(alpha = 0.5, 
+              color = "green4")+
+  geom_boxplot(outliers = FALSE)+
+  labs(
+    x = "Weight (g)", 
+    y = "", 
+    title = "Relationship Between Rodent Weight and Hindfoot Length",
+    subtitle = "Y-axis representing Species",)
 ```
 
 -   I can modify the text in my plot to be more readable
 
 ```{r}
 #| label: dvs-2-2
-
+#This is from lab 4 question 6. Here, I make the plot more readible through various means. In particular, I alter the size of the axes, the label names, and the order of the legend
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool"))|>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                           .x = study_year,
+                                           .y = price)))+
+  geom_smooth() +
+  geom_point() +
+  facet_wrap(~age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
+  theme_bw() +
+  labs(x = "Study Year",
+       y = "",
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7)) 
 ```
 
 -   I can reorder my legend to align with the colors in my plot
 
 ```{r}
 #| label: dvs-2-3
-
+#Again, this code is from lab 4 question 6. Here, I reorder the legend color data in order to match with the lines
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool"))|>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                           .x = study_year,
+                                           .y = price)))+
+  geom_smooth() +
+  geom_point() +
+  facet_wrap(~age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
+  theme_bw() +
+  labs(x = "Study Year",
+       y = "",
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7)) 
 ```
 
 **DVS-3: I show creativity in my visualizations**
@@ -275,7 +534,19 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-3-1
+#I used non standard colors in Lab 2 challenge question by using colors from packages ggsci and viridis
+surveys |> 
+  ggplot(aes(x = weight, y = species, color = genus)) +
+  geom_boxplot() +
+  scale_colour_viridis_d() +
+  labs(x = "Weight (g)", y = "", subtitle = "Species", legend = "Genus")
 
+#this second code chunk is for a separate graph with alternative colors
+surveys |> 
+  ggplot(aes(x = weight, y = species, color = genus)) +
+  geom_boxplot() +
+  scale_color_lancet() +
+  labs(x = "Weight (g)", y = "", subtitle = "Species", legend = "Genus")
 ```
 
 -   I can use annotations
@@ -289,7 +560,25 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-3-3
-
+#This code originates from Lab 4 Question 7. I will admit, I did not follow the question completely: I extended past what was asked for and included regional data when i wasn't supposed to. I would like to argue that this shows my creativity. I was originally just playing around with the graph and wanted to explore some trends. I was curious how region played into this correlation and was interested in the results of this inclusion (for examoke, all San Fransisco values are very high, Central Coast are right in the middle, etc.). For this reason, adding color just as an extra layer to graph demonstrates that I am thinking about what researchers would want to present and creative ways to include notible finds. 
+ca_childcare |>
+  filter(study_year == "2018") |>
+  select(mhi_2018,
+         mc_infant,
+         study_year,
+         region) |>
+  ggplot(mapping = aes(x = mhi_2018, 
+                       y = mc_infant,
+                       color = region))+
+  geom_jitter()+
+  geom_smooth(method = lm, 
+              color = "green4")+
+  theme_bw()+
+  labs(title = "Household Income and Weekly Price of 2018 Center-Based Infant Childcare",
+       x = "Median Weekly Household Income ($)",
+       y = "",
+       subtitle = "Y-axis representing Full-Time Median Weekly Price ($)",
+       color = "California Region")
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -387,7 +676,12 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: pe-2-1
-
+Palette_Earth <- c("#a0eb67", "#83ba59", "#3e6b1b", "#78eb05", "#ffd673", "#c99f3a", "#8a6204", "#d9cb0f")
+surveys |> 
+  ggplot(aes(x = weight, y = species, color = genus)) +
+  geom_boxplot() +
+  scale_color_manual(values = Palette_Earth) +
+  labs(x = "Weight (g)", y = "", subtitle = "Species", legend = "Genus")
 ```
 
 -   Function that operates on data frames
@@ -460,6 +754,7 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dsm-2-1
+chisq.test(teacher_evals_compare$sen_level, teacher_evals_compare$SET_level)
 
 ```
 
