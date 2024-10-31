@@ -9,6 +9,7 @@ editor: visual
 execute: 
   eval: false
   echo: true
+  message: false
 ---
 
 [**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
@@ -33,14 +34,20 @@ surveys <- read_csv(here::here("data","surveys.csv"))
 
 ```{r}
 #| label: wd-1-xlsx
-
+#This code originates from the practice activity 4 - Military spending. Here, not only do we load in a xlsx file, we also specify the sheet and rows we wanted to include. 
+military <- read_xlsx(here::here("data", 
+                                 "gov_spending_per_capita.xlsx"), 
+                      sheet = "Share of Govt. spending", 
+                      skip  = 7, 
+                      n_max = 190)
 ```
 
 -   `txt`
 
 ```{r}
 #| label: wd-1-txt
-
+#This code originates from Check-in 2.3. 
+ages_tab <- read_table(file = here::here("Week 2", "Check-ins", "Ages_Data", "ages_tab.txt"))
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -119,7 +126,8 @@ crime_scene_report |>
 
 #Here is the updated code USING lubridate instead of filtering it just as a numeric value
 crime_scene_report |>
-  mutate(date = ymd(date))|>
+  mutate(date = ymd(date)
+         )|>
   filter(date == "2018-01-15",
          type == "murder",
          city == "SQL City") |>
@@ -132,14 +140,21 @@ crime_scene_report |>
 
 ```{r}
 #| label: wd-4-numeric
-
+#This originates from the set up in Lab 3 Challenge. Here, I am creating a cleaner version of the dataset's question_no variable by subtracting 900 (effectively converting each question number into the a number 1-9 isntead of 901-909).
+clean_evals <- evals |>
+  mutate(sex = gender,
+         teacher_id = as.factor(teacher_id),
+         question_no = question_no-900)
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-4-string
-
+#This originates from Lab 4 Question3. Here I modify the existing county name and create a new variable with the same name that removes " Count" from all values within. 
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, 
+                                  " County"))
 ```
 
 -   factor (example must use functions from **forcats**)
@@ -172,7 +187,8 @@ ca_childcare |>
 #| label: wd-4-date
 #As mentioned in WD-3, this line of code comes from Lab 5 and is altered from my original submission to include a date mutation with lubridate using ymd()
 crime_scene_report |>
-  mutate(date = ymd(date))|>
+  mutate(date = ymd(date)
+         )|>
   filter(date == "2018-01-15",
          type == "murder",
          city == "SQL City") |>
@@ -185,7 +201,12 @@ crime_scene_report |>
 
 ```{r}
 #| label: wd-5-left
+#This code is from Lab 4 question 2. Here I implement a left_join()
 
+ca_childcare <- counties |>
+  filter(state_abbreviation == "CA") |>
+  left_join(childcare_costs,
+            by = join_by(county_fips_code == county_fips_code))
 ```
 
 -   `right_join()`
@@ -199,7 +220,13 @@ crime_scene_report |>
 
 ```{r}
 #| label: wd-5-inner
-
+#Here i include code from Lab 5 and combine three different dataframes. I also use robust & resitant coding by confirming that ssn == ssn just in case. 
+inner_join(person,
+           drivers_license,
+           join_by(license_id == id)) |>
+  inner_join(facebook_event_checkin,
+           join_by(id == person_id)) |>
+  inner_join(income, join_by(ssn == ssn))
 ```
 
 -   `full_join()`
@@ -269,121 +296,18 @@ ca_childcare |>
 
 I've done this in the following provided assignments:
 
+-   Lab 3 Challenge
+
+-   Lab 4
+
+-   Lab 5
+
 **R-2: I can write well documented and tidy code.**
 
 -   Example of **ggplot2** plotting
 
 ```{r}
 #| label: r-2-1
-
-```
-
--   Example of **dplyr** pipeline
-
-```{r}
-#| label: r-2-2
-
-```
-
--   Example of function formatting
-
-```{r}
-#| label: r-2-3
-
-```
-
-**R-3: I can write robust programs that are resistant to changes in inputs.**
-
--   Example -- any context
-
-```{r}
-#| label: r-3-example
-
-ADD CONTEXT!!!
-
-ca_childcare |>
-  filter(study_year == "2018") |>
-  select(region, 
-         study_year, 
-         mcsa) |>
-  group_by(region)|>
-  summarise(median_region = median(mcsa))|>
-  slice_min(median_region)
-```
-
--   Example of function stops
-
-```{r}
-#| label: r-3-function-stops
-
-```
-
-## Data Visualization & Summarization
-
-**DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
-
--   at least two numeric variables
-
-```{r}
-#| label: dvs-1-num
-#This is from Lab 4 Question 6. Here, the two numeric variables are year and cost. 
-ca_childcare |>
-  select(region, 
-         study_year, 
-         mc_infant,
-         mc_toddler,
-         mc_preschool) |>
-  pivot_longer(cols = mc_infant:mc_preschool,
-               names_to = "age",
-               values_to = "price") |>
-  mutate(age = fct(age,
-                   levels = c("mc_infant",
-                              "mc_toddler",
-                              "mc_preschool")
-                   ),
-         age = fct_recode(.f = age,
-                    "Infant" = "mc_infant",
-                    "Toddler" = "mc_toddler",
-                    "Preschool" = "mc_preschool"))|>
-  ggplot(mapping = aes(x = study_year,
-                       y = price,
-                       color = fct_reorder2(.f = region,
-                                           .x = study_year,
-                                           .y = price)
-                       )
-         )+
-  geom_smooth() +
-  geom_point() +
-  facet_wrap(~age) +
-  scale_x_continuous(n.breaks = 6) +
-  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
-  theme_bw() +
-  labs(x = "Study Year",
-       y = "",
-       title = "Weekly Median Price for Center-Based Childcare ($)",
-       color = "California Region") +
-  theme(axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 7)) 
-```
-
--   at least one numeric variable and one categorical variable
-
-```{r}
-#| label: dvs-2-num-cat
-
-```
-
--   at least two categorical variables
-
-```{r}
-#| label: dvs-2-cat
-
-```
-
--   dates (timeseries plot)
-
-```{r}
-#| label: dvs-2-date
 ca_childcare |>
   select(region, 
          study_year, 
@@ -423,34 +347,116 @@ ca_childcare |>
         axis.text.y = element_text(size = 7))
 ```
 
-**DVS-2: I use plot modifications to make my visualization clear to the reader.**
-
--   I can ensure people don't tilt their head
+-   Example of **dplyr** pipeline
 
 ```{r}
-#| label: dvs-2-1
-#Here is a line of code from Lab 2 question 16. I implement two ways of increasing readiblity: altering species to the y-axis and using the subtitle in place of a y-axis label.
-ggplot(data = surveys,
-       mapping = aes(
-         x = weight, 
-         y = species,
-         )
-       ) +
-  geom_jitter(alpha = 0.5, 
-              color = "green4")+
-  geom_boxplot(outliers = FALSE)+
-  labs(
-    x = "Weight (g)", 
-    y = "", 
-    title = "Relationship Between Rodent Weight and Hindfoot Length",
-    subtitle = "Y-axis representing Species",)
+#| label: r-2-2
+
+check
+
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, 
+                                  " County"),
+         region = fct_collapse(.f = county_name,
+                               "Superior California" = c("Butte", 
+                                                         "Colusa", 
+                                                         "El Dorado", 
+                                                         "Glenn", 
+                                                         "Lassen", 
+                                                         "Modoc", "Nevada", 
+                                                         "Plumas", 
+                                                         "Sacramento", 
+                                                         "Shasta", 
+                                                         "Sierra", 
+                                                         "Siskiyou", 
+                                                         "Sutter", 
+                                                         "Tehama", 
+                                                         "Yolo", 
+                                                         "Yuba", 
+                                                         "Placer"),
+                               "San Francisco Bay Area" = c("Alameda", 
+                                                            "Contra Costa", 
+                                                            "Marin", 
+                                                            "San Francisco", 
+                                                            "San Mateo", 
+                                                            "Santa Clara", 
+                                                            "Solano"),
+                               "North Coast" = c("Del Norte", 
+                                                 "Humboldt", 
+                                                 "Lake", 
+                                                 "Mendocino", 
+                                                 "Napa", 
+                                                 "Sonoma", 
+                                                 "Trinity"),
+                               "Orange County" = c("Orange"),
+                               "Central Coast" = c("Monterey", 
+                                                   "San Benito", 
+                                                   "San Luis Obispo", 
+                                                   "Santa Barbara", 
+                                                   "Santa Cruz", 
+                                                   "Ventura"),
+                               "Northern San Joaquin Valley" = c("Alpine", 
+                                                                 "Amador", 
+                                                                 "Calaveras", 
+                                                                 "Madera", 
+                                                                 "Mariposa", 
+                                                                 "Merced", 
+                                                                 "Mono", 
+                                                                 "San Joaquin", 
+                                                                 "Stanislaus", 
+                                                                 "Tuolumne"),
+                               "Los Angeles County" = c("Los Angeles"),
+                               "Southern San Joaquin Valley" = c("Fresno", 
+                                                                 "Kern", 
+                                                                 "Kings", 
+                                                                 "Inyo", 
+                                                                 "Tulare"),
+                               "Inland Empire" = c("Riverside", 
+                                                   "San Bernardino"),
+                               "San Diego Imperial" = c("San Diego", 
+                                                       "Imperial")))
 ```
 
--   I can modify the text in my plot to be more readable
+-   Example of function formatting
 
 ```{r}
-#| label: dvs-2-2
-#This is from lab 4 question 6. Here, I make the plot more readible through various means. In particular, I alter the size of the axes, the label names, and the order of the legend
+#| label: r-2-3
+
+```
+
+**R-3: I can write robust programs that are resistant to changes in inputs.**
+
+-   Example -- any context
+
+```{r}
+#| label: r-3-example
+#Here is a line of code from Lab 4 question 5. In this, i utilize a robust means of extracting the minimum median region value using slice_min. Instead of selecting a certain row, i request that the minimum value is extracted, ensuring that regardless of how shuffled the dataset is, i get the exact value i want. 
+ca_childcare |>
+  filter(study_year == "2018") |>
+  select(region, 
+         study_year, 
+         mcsa) |>
+  group_by(region)|>
+  summarise(median_region = median(mcsa))|>
+  slice_min(median_region)
+```
+
+-   Example of function stops
+
+```{r}
+#| label: r-3-function-stops
+#not learn yet
+```
+
+## Data Visualization & Summarization
+
+**DVS-1: I can create visualizations for a *variety* of variable types (e.g., numeric, character, factor, date)**
+
+-   at least two numeric variables
+
+```{r}
+#| label: dvs-1-num
+#This is from Lab 4 Question 6. Here, the two numeric variables are year and cost of child support. 
 ca_childcare |>
   select(region, 
          study_year, 
@@ -478,6 +484,161 @@ ca_childcare |>
   facet_wrap(~age) +
   scale_x_continuous(n.breaks = 6) +
   scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
+  theme_bw() +
+  labs(x = "Study Year",
+       y = "",
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7)) 
+```
+
+-   at least one numeric variable and one categorical variable
+
+```{r}
+#| label: dvs-2-num-cat
+#This code originates from my Lab 2 challenge. (Here I deleted an extra comma but other than that, should be good). Numeric: wight Cat: species
+ggplot(data = surveys,
+       mapping = aes(
+         x= weight, 
+         y= species)) +
+  geom_jitter(alpha=0.5, 
+              color="green4")+
+  geom_density_ridges(alpha-0.5)+
+  labs(
+    x="Weight (g)", 
+    y="", 
+    title= "Relationship Between Rodent Weight and Hindfoot Length",
+    subtitle= "Y-axis representing Species")
+```
+
+-   at least two categorical variables
+
+```{r}
+#| label: dvs-2-cat
+#This is from Lab 2 Challenge. Here I create a graph using the vector color pallete "Palette_Earth" I created. The two categorical variables are Genus and Species. 
+
+Palette_Earth <- c("#a0eb67", "#83ba59", "#3e6b1b", "#78eb05", "#ffd673", "#c99f3a", "#8a6204", "#d9cb0f")
+
+surveys |> 
+  ggplot(aes(x = weight, 
+             y = species, 
+             color = genus)) +
+  geom_boxplot() +
+  scale_color_manual(values = Palette_Earth) +
+  labs(x = "Weight (g)", 
+       y = "", 
+       subtitle = "Species", 
+       legend = "Genus")
+```
+
+-   dates (timeseries plot)
+
+```{r}
+#| label: dvs-2-date
+
+CHECK?
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")
+                   ),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool")
+         )|>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                           .x = study_year,
+                                           .y = price)
+                       )
+         )+
+  geom_smooth() +
+  geom_point() +
+  facet_wrap(~age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()
+                     ) +
+  theme_bw() +
+  labs(x = "Study Year",
+       y = "",
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7))
+```
+
+**DVS-2: I use plot modifications to make my visualization clear to the reader.**
+
+-   I can ensure people don't tilt their head
+
+```{r}
+#| label: dvs-2-1
+#Here is a line of code from Lab 2 question 16. I implement two ways of increasing readiblity: altering species to the y-axis and using the subtitle in place of a y-axis label.
+ggplot(data = surveys,
+       mapping = aes(
+         x = weight, 
+         y = species
+         )
+       ) +
+  geom_jitter(alpha = 0.5, 
+              color = "green4")+
+  geom_boxplot(outliers = FALSE)+
+  labs(
+    x = "Weight (g)", 
+    y = "", 
+    title = "Relationship Between Rodent Weight and Hindfoot Length",
+    subtitle = "Y-axis representing Species",)
+```
+
+-   I can modify the text in my plot to be more readable
+
+```{r}
+#| label: dvs-2-2
+#This is from lab 4 question 6. Here, I make the plot more readible through various means. In particular, I alter the size of the axes, the label names, and the order of the legend.
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")
+                   ),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool")
+         )|>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                           .x = study_year,
+                                           .y = price)
+                       )
+         )+
+  geom_smooth() +
+  geom_point() +
+  facet_wrap(~age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()
+                     ) +
   theme_bw() +
   labs(x = "Study Year",
        y = "",
@@ -504,21 +665,26 @@ ca_childcare |>
   mutate(age = fct(age,
                    levels = c("mc_infant",
                               "mc_toddler",
-                              "mc_preschool")),
+                              "mc_preschool")
+                   ),
          age = fct_recode(.f = age,
                     "Infant" = "mc_infant",
                     "Toddler" = "mc_toddler",
-                    "Preschool" = "mc_preschool"))|>
+                    "Preschool" = "mc_preschool")
+         )|>
   ggplot(mapping = aes(x = study_year,
                        y = price,
                        color = fct_reorder2(.f = region,
                                            .x = study_year,
-                                           .y = price)))+
+                                           .y = price)
+                       )
+         )+
   geom_smooth() +
   geom_point() +
   facet_wrap(~age) +
   scale_x_continuous(n.breaks = 6) +
-  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()
+                     ) +
   theme_bw() +
   labs(x = "Study Year",
        y = "",
@@ -536,14 +702,16 @@ ca_childcare |>
 #| label: dvs-3-1
 #I used non standard colors in Lab 2 challenge question by using colors from packages ggsci and viridis
 surveys |> 
-  ggplot(aes(x = weight, y = species, color = genus)) +
+  ggplot(aes(x = weight, y = species, color = genus)
+         ) +
   geom_boxplot() +
   scale_colour_viridis_d() +
   labs(x = "Weight (g)", y = "", subtitle = "Species", legend = "Genus")
 
 #this second code chunk is for a separate graph with alternative colors
 surveys |> 
-  ggplot(aes(x = weight, y = species, color = genus)) +
+  ggplot(aes(x = weight, y = species, color = genus)
+         ) +
   geom_boxplot() +
   scale_color_lancet() +
   labs(x = "Weight (g)", y = "", subtitle = "Species", legend = "Genus")
@@ -569,7 +737,8 @@ ca_childcare |>
          region) |>
   ggplot(mapping = aes(x = mhi_2018, 
                        y = mc_infant,
-                       color = region))+
+                       color = region)
+         )+
   geom_jitter()+
   geom_smooth(method = lm, 
               color = "green4")+
@@ -579,6 +748,27 @@ ca_childcare |>
        y = "",
        subtitle = "Y-axis representing Full-Time Median Weekly Price ($)",
        color = "California Region")
+
+#Additionally, here I show some creativity. this is from Lab 5 and Instead of simply writting down the names of the people I extracted from the gym files, I piped the function. I do not normally make these when unneeded but I thought it would be fun to use it to filter out with an %in%.
+gym_names <- inner_join(get_fit_now_member, 
+                        get_fit_now_check_in,
+                        by = join_by(id == membership_id)
+                        )|>
+  select(name,
+         id,
+         membership_status,
+         check_in_date)|>
+  filter(str_detect(id, "48Z"),
+        membership_status == "gold")|>
+  pull(name)
+inner_join(drivers_license,
+           person,
+           join_by(id == license_id)
+           ) |>
+  select(name,
+         id,
+         plate_number) |>
+  filter(name %in% gym_names)
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -587,7 +777,20 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-4-summarize
-
+#Here is an example from Lab 4 question 4 where I utilize summarise to create a new median_region variable
+ca_childcare |>
+  filter(study_year %in% c("2018", 
+                           "2008")) |>
+  select(region, 
+         study_year, 
+         mhi_2018) |>
+  group_by(region, study_year) |>
+  summarise(median_region = median(mhi_2018)) |>
+  pivot_wider(id_cols = region,
+             names_from = study_year, 
+             values_from = median_region,
+             names_prefix = "mhi_in_")|>
+  ungroup()
 ```
 
 -   Example using `across()`
@@ -603,7 +806,21 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-5-1
+#The code originates from Lab 4 question 4. Here, I am able to summarize the median region household income based on 2018 values. In this chunk, i group by the two groups region and study_year.
 
+ca_childcare |>
+  filter(study_year %in% c("2018", 
+                           "2008")) |>
+  select(region, 
+         study_year, 
+         mhi_2018) |>
+  group_by(region, study_year) |>
+  summarise(median_region = median(mhi_2018)) |>
+  pivot_wider(id_cols = region,
+             names_from = study_year, 
+             values_from = median_region,
+             names_prefix = "mhi_in_")|>
+  ungroup()
 ```
 
 -   Example 2
@@ -653,7 +870,11 @@ ca_childcare |>
 
 ```{r}
 #| label: pe-1-one-call
-
+#Here is a code chunk from Lab 3 Challenge set up. Here, I use one single mutate function with three inputs (sex, teacher_id, and question_no changes) instead of three separate mutate functions. 
+clean_evals <- evals |>
+  mutate(sex = gender,
+         teacher_id = as.factor(teacher_id),
+         question_no = question_no-900)
 ```
 
 -   `across()`
@@ -676,9 +897,12 @@ ca_childcare |>
 
 ```{r}
 #| label: pe-2-1
+#This is from Lab 2 Challenge. Here I create a vector to house the colors I wanted for my graph. then I use the vector to color the graph
 Palette_Earth <- c("#a0eb67", "#83ba59", "#3e6b1b", "#78eb05", "#ffd673", "#c99f3a", "#8a6204", "#d9cb0f")
+
 surveys |> 
-  ggplot(aes(x = weight, y = species, color = genus)) +
+  ggplot(aes(x = weight, y = species, color = genus)
+         ) +
   geom_boxplot() +
   scale_color_manual(values = Palette_Earth) +
   labs(x = "Weight (g)", y = "", subtitle = "Species", legend = "Genus")
@@ -720,7 +944,21 @@ surveys |>
 
 ```{r}
 #| label: pe-4-1
+#This is code from Lab 4. Here, i use pivot_wider() and names_prefix() in conjunction, which is a relatively modern approach to what I wanted to do. Instead of using separate functions to pivot and rename the variable, i was able to do it all in one place. 
 
+ca_childcare |>
+  filter(study_year %in% c("2018", 
+                           "2008")) |>
+  select(region, 
+         study_year, 
+         mhi_2018) |>
+  group_by(region, study_year) |>
+  summarise(median_region = median(mhi_2018)) |>
+  pivot_wider(id_cols = region,
+             names_from = study_year, 
+             values_from = median_region,
+             names_prefix = "mhi_in_")|>
+  ungroup()
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
@@ -754,8 +992,8 @@ surveys |>
 
 ```{r}
 #| label: dsm-2-1
-chisq.test(teacher_evals_compare$sen_level, teacher_evals_compare$SET_level)
-
+chisq.test(teacher_evals_compare$sen_level, 
+           teacher_evals_compare$SET_level)
 ```
 
 -   Example 2
@@ -780,3 +1018,5 @@ chisq.test(teacher_evals_compare$sen_level, teacher_evals_compare$SET_level)
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+
+"Sorry for asking so many questions, this one isn't necessarily about the coding itself. Is it fine that the graph is naturally just a little squashed? everything is there but the numbers at the bottom are real close. I've tried looking for resizing options but we haven't discussed it in class (to my knowledge)"
