@@ -12,7 +12,7 @@ execute:
   message: false
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an -A.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -213,7 +213,13 @@ ca_childcare <- counties |>
 
 ```{r}
 #| label: wd-5-right
-
+#This is from Lab 5, a portion of the lab I am currently revising. Here, I confirm that the suspect is the true murderer by joining the two dataframes and pulling her name.
+right_join(interview,
+           person,
+           join_by(person_id == id))|>
+  select(name, 
+         transcript)|>
+  filter(str_detect(name, "Miranda Priestly"))
 ```
 
 -   `inner_join()`
@@ -233,7 +239,16 @@ inner_join(person,
 
 ```{r}
 #| label: wd-5-full
-
+#This code originates from lab 5 where I have altered my original code. Here, I utilize a full_join() to incorpreate the data from the interview dataframe in order to go straight from the 2 witnesses to the transcripts.
+person |> 
+  full_join(interview,
+            join_by(id == person_id))|>
+  filter(
+    (address_street_name == "Northwestern Dr" & address_number == max(address_number)) |
+    (address_street_name == "Franklin Ave" & str_detect(name, "Annabel"))
+         )|>
+    pull(transcript,
+         name)
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -242,14 +257,42 @@ inner_join(person,
 
 ```{r}
 #| label: wd-6-semi
+#This code is from lab 5 and is a part of the revision I am making. Here, I utilize a semi_join near the end of my code chunk
+gym_names <- inner_join(get_fit_now_member, 
+                        get_fit_now_check_in,
+                        by = join_by(id == membership_id)
+                        )|>
+  select(name,
+         id,
+         membership_status,
+         check_in_date
+         )|>
+  filter(str_detect(id, "^48Z"),
+         membership_status == "gold")
 
+inner_join(person,
+           drivers_license,
+           join_by(license_id == id)
+           ) |>
+  filter(str_detect(
+         plate_number, "H42W"))|>
+  select(name,
+         id
+         ) |>
+  semi_join(gym_names,
+            join_by(name == name)
+            )|>
+  inner_join(interview,
+            join_by(id == person_id)
+            )|>
+  pull(transcript)
 ```
 
 -   `anti_join()`
 
 ```{r}
 #| label: wd-6-anti
-
+#I chose to wait for a future lab in which i can utilize this function
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -351,9 +394,7 @@ ca_childcare |>
 
 ```{r}
 #| label: r-2-2
-
-check
-
+#This code chunk is from Lab 4 question 3. I chose to include this code chunk because it was comprised of a large amount of characters and was thus difficult to deal with. Nevertheless, I was able to keep the code tidy and organized.
 ca_childcare <- ca_childcare |> 
   mutate(county_name = str_remove(county_name, 
                                   " County"),
@@ -421,7 +462,7 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: r-2-3
-
+#To be learned
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -445,7 +486,7 @@ ca_childcare |>
 
 ```{r}
 #| label: r-3-function-stops
-#not learn yet
+#not learned yet
 ```
 
 ## Data Visualization & Summarization
@@ -749,26 +790,13 @@ ca_childcare |>
        subtitle = "Y-axis representing Full-Time Median Weekly Price ($)",
        color = "California Region")
 
-#Additionally, here I show some creativity. this is from Lab 5 and Instead of simply writting down the names of the people I extracted from the gym files, I piped the function. I do not normally make these when unneeded but I thought it would be fun to use it to filter out with an %in%.
-gym_names <- inner_join(get_fit_now_member, 
-                        get_fit_now_check_in,
-                        by = join_by(id == membership_id)
-                        )|>
-  select(name,
-         id,
-         membership_status,
-         check_in_date)|>
-  filter(str_detect(id, "48Z"),
-        membership_status == "gold")|>
-  pull(name)
-inner_join(drivers_license,
-           person,
-           join_by(id == license_id)
-           ) |>
-  select(name,
-         id,
-         plate_number) |>
-  filter(name %in% gym_names)
+#
+
+
+
+
+
+
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -797,7 +825,7 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-4-across
-
+#decieded to wait for a future lab
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
@@ -836,14 +864,35 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-6-1
-
+#This is from Lab 4. I actually fixed this piece of code to better explain my data. Originally I had "mhi_in" as a prefix but altered it to "median_household_income_" to better explain the data.
+ca_childcare |>
+  filter(study_year %in% c("2018", 
+                           "2008")) |>
+  select(region, 
+         study_year, 
+         mhi_2018) |>
+  group_by(region, study_year) |>
+  summarise(median_region = median(mhi_2018)) |>
+  pivot_wider(id_cols = region,
+             names_from = study_year, 
+             values_from = median_region,
+             names_prefix = "median_household_income_")|>
+  ungroup()
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-6-2
-
+#This code originates from Lab 3 Challenge. Here, I clean up the table such that it is easier to understand and read. In particular, I made the question number the intended number as opposed to having an additional 900 added on. 
+evals |>
+  mutate(sex = gender,
+         teacher_id = as.factor(teacher_id),
+         question_no = question_no-900) |>
+  filter(no_participants >= 10) |>
+  select(course_id:SET_score_avg, 
+         percent_failed_cur, 
+         academic_degree:sex)
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -881,14 +930,14 @@ clean_evals <- evals |>
 
 ```{r}
 #| label: pe-1-across
-
+#decieded to wait for a future lab
 ```
 
 -   `map()` functions
 
 ```{r}
 #| label: pe-1-map-1
-
+#not learned yet
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -945,7 +994,6 @@ surveys |>
 ```{r}
 #| label: pe-4-1
 #This is code from Lab 4. Here, i use pivot_wider() and names_prefix() in conjunction, which is a relatively modern approach to what I wanted to do. Instead of using separate functions to pivot and rename the variable, i was able to do it all in one place. 
-
 ca_childcare |>
   filter(study_year %in% c("2018", 
                            "2008")) |>
@@ -965,7 +1013,45 @@ ca_childcare |>
 
 ```{r}
 #| label: pe-4-2
+#This code is from Lab 4 question 6. Here, i wrangle data using pivoting, selecting, and mutating. Afterwards, I connect it into a ggplot() function. 
 
+ca_childcare |>
+  select(region, 
+         study_year, 
+         mc_infant,
+         mc_toddler,
+         mc_preschool) |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "age",
+               values_to = "price") |>
+  mutate(age = fct(age,
+                   levels = c("mc_infant",
+                              "mc_toddler",
+                              "mc_preschool")
+                   ),
+         age = fct_recode(.f = age,
+                    "Infant" = "mc_infant",
+                    "Toddler" = "mc_toddler",
+                    "Preschool" = "mc_preschool"))|>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                           .x = study_year,
+                                           .y = price)
+                       )
+         )+
+  geom_smooth() +
+  geom_point() +
+  facet_wrap(~age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
+  theme_bw() +
+  labs(x = "Study Year",
+       y = "",
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7)) 
 ```
 
 ## Data Simulation & Statisical Models
@@ -992,6 +1078,7 @@ ca_childcare |>
 
 ```{r}
 #| label: dsm-2-1
+#This code is from Lab 3 challenge. In here, I run a chi squared test between the seniority level of professors and the SET level average for question 3 (a review of activities in their class). 
 chisq.test(teacher_evals_compare$sen_level, 
            teacher_evals_compare$SET_level)
 ```
@@ -1000,23 +1087,101 @@ chisq.test(teacher_evals_compare$sen_level,
 
 ```{r}
 #| label: dsm-2-2
-
+#This is from Lab 4 question 8. Here, I use a liner regression model to identify the correlation between median household income and weekly cost of center-based childcare in 2018. I altered this data to avoid creating an intermediate object. 
+summary(lm(data = ca_childcare, 
+               mc_infant ~ mhi_2018))
 ```
 
 ## Revising My Thinking
 
-<!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
+I have revised my thinking in various ways throughout the course. I have made revisions to every document that requires alterations. (This includes my Lab 3, a lab that did not qualify for a revision. Nevertheless, I still wanted to explore how I could improve my code and ensure I remember the mistakes by actively fixing them.) This demonstrates my ability to incorporate feedback into my work and produce improved work. 
 
-<!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
+Additionally, my ability to revise my thinking is demonstrated in my revision reflections. It was not enough to simply state the mistake and alterations made, I wanted to make it clear that I have learned from the feedback that was given to me. For example, here is a revision of my code below:
 
-## Extending My Thinking
+Lab 3 Challenge Revision Reflection
 
-<!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
+*Reflection: Originally, I neglected to specify that the analysis was specifically about question 3. I forgot that I filtered out for SET question 3. Instead, my conclusion extrapolated beyond the actual findings and made the generalization for ALL questions. This is an important distinction to make because otherwise I am talking about the professor’s evaluation in general as opposed to their use of activities. It is important to make sure that the analysis and the conclusion line up because otherwise I am making a statement backed by incompatible data.*
 
-## Peer Support & Collaboration
+Another reflection comes from Lab 2 Revision
 
-<!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
+colnames(surveys) revised to be glimpse(surveys)
 
-<!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+*Reflection: I originally just provided the variables in this data set. However, the original question is to provide the data types, not just the variables. The original function I used (colnames()) does not provide any of this information while the new function I utilize (glimpse()) does. It is important to address the question at hand, especially when it has implications for how to run the code. There are many functions that rely on the data being either categorical/characters or numeric (either continuous or discrete). Although just getting familiar with the variable names is important before working with the data, getting a more holistic glimpse of how the data is formatted is far more important.*
 
-"Sorry for asking so many questions, this one isn't necessarily about the coding itself. Is it fine that the graph is naturally just a little squashed? everything is there but the numbers at the bottom are real close. I've tried looking for resizing options but we haven't discussed it in class (to my knowledge)"
+Lastly, I have a reflection about showing my work over the product (quality over completion). This reflection comes from my to-be-submitted Lab 5 revision.
+
+From this reflection, I added this code:
+
+right_join(interview,
+
+           person,
+
+           join_by(person_id == id))\|\>
+
+  select(name, 
+
+         transcript)\|\>
+
+  filter(str_detect(name, "Miranda Priestly"))
+
+*Reflection: At the very end of the document, I conclude that Miranda Priestly is the culprit. However, you noted that I did not check the interview for Miranda Priestly. Originally, I opened the dataset in a separate tab to check and found nothing from her. This confused me and I assumed that it means it was the end of the lab so I decided to convict her. This, however, was the wrong course of action. It was not justified through code and there is no way I would have known she did not have a transcript if I hadn’t had access to the raw datasets. Instead, I should have demonstrated my ability to join and filter datasets. I was discussing this in class and have recently discovered the importance not just taking out information but instead coding it in and justifying it.  Sure, I was able to get the correct suspect but it means nothing if I cannot justify it (even down to the very end when checking the interviews). This is important because in a practical setting, it is best to provide your strongest argument and leave no loose ends. Even though I knew there was no transcript, it is important to show that I know it and show I know how to find that information with code.*
+
+Typically half of the text in my reflections were dedicated to directly addressing WHY this fix was important, not only the fact that I made the switch. It is important to get to the root of the issue because that is how you learn & improve for the future. 
+
+Even if a reflection was not needed, I still revised my work and utilized the feedback I received. In particular, I was given comments for every section but had a satisfactory submission such that a revision was not needed. Regardless, I went back and added code such as “+theme(axis.text.x = element_text(size = 7), axis.text.y = element_text(size = 7))” and “theme_bw()+”. Even though they were little changes, I wanted to take advantage of the advice I was given and solidify in my mind that these are important things to remember.
+
+**Extending My Thinking**
+
+Throughout the quarter, I have tried to extend my thinking when possible. The only time in which we have been given the opportunity to choose medium, spicy or super spicy (Lab 2), I did not choose the simplest option and instead went for medium & spicy. I decided against the super spicy due to my horribly busy schedule but wanted to push myself beyond the basic challenge assignment. I struggled with the spicy section and asked many questions in the discord channel after getting stuck. Nevertheless, I stuck to it and was able to submit it. Additionally, my Lab 3 challenge received all successes and I tried my best to use what I knew to match the graph and preform a chi squared analysis. 
+
+Outside of class, I have also utilized the R coding knowledge I have obtained and applied it to my experimental write ups. Below is a line of code I wrote for and included in my Environmental Physiology Report
+
+temp \|\>
+
+  ggplot(mapping = aes(y=temp, 
+
+                       x=type))+
+
+  geom_boxplot()+
+
+  geom_jitter(alpha = .5)+
+
+  theme_bw()+
+
+  labs(title = "External and Internal Temperatures of the Western Fence Lizard",
+
+       subtitle = "Y-Axis Represening Temperature (ºC)",
+
+       y = "",
+
+       x = "Location")
+
+And 
+
+t.test(temp\$temp \~ temp\$type,
+
+        conf.level=.95)
+
+I hope to one day utilize R code in the studies I anticipate publishing. With the skills I have learned and anticipate building on, I am confident in my abilities to extend my thinking.
+
+**Peer Support & Collaboration**
+
+There are a number of ways throughout the quarter in which I have demonstrated my peer support and collaborative abilities. In class, I will often try to talk to the people next to me and will often refer to them before raising my hand. One of the goals of this is to mitigate the flood questions I typically ask. I try to help those with questions both to strengthen my own code communication skills and potentially learn something new through trial and error. I ask the people around me because they are going through the same processes as me and it may help them too in the case they have the same problem.
+
+Outside of class, I also collaborate with my peers through peer feedback, office hours, and over discord. During office hours, I will often try to talk to other students, involve myself in conversation, and ask questions that may apply to other people. I distinctly remember a few times in which I had already completed a problem but stopped to talk about it with others in order to help them and/or improve my already-formed code. 
+
+During peer feedback, I make sure to provide positive feedback with specific examples:
+
+“I love how you used name.x within the pull for “Finding a Suspect” section. This is was a great use of the .x and is definitely stable formatting that you can use for your portfolio. You did a wonderful job annotating and explaining your thought process. I love the titles and descriptions that you include over each code chunk. It makes your flow of work easier to follow along with and cleaner.”
+
+I also make sure to point out areas of weakness, sometimes ways they hadn’t considered: 
+
+“You automatically filtered the name “Annabel miller” even though we did not know her last name at that point in time. Make sure that you are showing all of your steps and exactly how you got that last name.”
+
+Occasionally I include fixes to the code I’ve also received criticism on:
+
+“Consider trying to use different functions other than just full and inner joins. This could help with the midterm portfolio (I know I struggled on that so I understand)”
+
+Additionally, I’ve been active on the discord, oftentimes having questions that apply to many people:
+
+“Sorry for asking so many questions, this one isn't necessarily about the coding itself. Is it fine that the graph is naturally just a little squashed? everything is there but the numbers at the bottom are real close. I've tried looking for resizing options but we haven't discussed it in class (to my knowledge)”
