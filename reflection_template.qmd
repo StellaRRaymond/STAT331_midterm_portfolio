@@ -110,7 +110,7 @@ person |>
 
 ```{r}
 #| label: wd-3-factor
-
+#i have decided to wait for a future lab in which I can utilize this
 ```
 
 -   date (example must use functions from **lubridate**)
@@ -762,7 +762,40 @@ surveys |>
 
 ```{r}
 #| label: dvs-3-2
-
+#This code is from lab 3 challenge and I have updated it such that I included annotations in the graph to better visualize which section of the stacked bar graph is which. This was not included in the revisions but added here.
+teacher_evals_compare |>
+ggplot(mapping=aes(x = sen_level, 
+                   fill = SET_level)) +
+  
+  theme_bw()+
+  scale_fill_manual(values = c("#2d73b5",
+                               "#c97a0a")) +
+  geom_bar() +
+  annotate("text", 
+           y = 50,
+           x = "senior", 
+           label = "Standard", 
+           color = "white") +
+  annotate("text", 
+           y = 250, 
+           x = "senior", 
+           label = "Excellent", 
+           color = "white") +
+  annotate("text", 
+           y = 25, 
+           x = "junior", 
+           label = "Standard", 
+           color = "white") +
+  annotate("text", 
+           y = 175, 
+           x = "junior", 
+           label = "Excellent", 
+           color = "white") +
+  labs(title = "Evaluation of In-Class Activity Use by Instructor Seniority",
+       x="Seniority of Instructor",
+       y="",
+       subtitle = "Number of Sections",
+       fill = "SET Level")
 ```
 
 -   I can be creative...
@@ -878,6 +911,24 @@ ca_childcare |>
              values_from = median_region,
              names_prefix = "median_household_income_")|>
   ungroup()
+
+#Additionally, I could alter my code from Lab 3 Challenge such that SET and sen are more clear. Below is an alteration I made to do so. Here is the altered code:
+
+teacher_evals_compare <- clean_evals |>
+  filter(question_no == 3) |>
+  mutate(SET_Q3_score_average = if_else(SET_score_avg >= 4,
+                            "excellent",
+                            "standard"),
+         seniority_level = if_else(seniority <= 4,
+                             "junior",
+                             "senior"))|>
+  select(course_id,
+         SET_Q3_score_average,
+         seniority_level)
+
+teacher_evals_compare
+
+#I changed SET_level -> SET_Q3_score_average and sen_level -> seniority_level
 ```
 
 -   Example 2
@@ -1124,11 +1175,11 @@ right_join(interview,
 
   filter(str_detect(name, "Miranda Priestly"))
 
-*Reflection: At the very end of the document, I conclude that Miranda Priestly is the culprit. However, you noted that I did not check the interview for Miranda Priestly. Originally, I opened the dataset in a separate tab to check and found nothing from her. This confused me and I assumed that it means it was the end of the lab so I decided to convict her. This, however, was the wrong course of action. It was not justified through code and there is no way I would have known she did not have a transcript if I hadn’t had access to the raw datasets. Instead, I should have demonstrated my ability to join and filter datasets. I was discussing this in class and have recently discovered the importance not just taking out information but instead coding it in and justifying it.  Sure, I was able to get the correct suspect but it means nothing if I cannot justify it (even down to the very end when checking the interviews). This is important because in a practical setting, it is best to provide your strongest argument and leave no loose ends. Even though I knew there was no transcript, it is important to show that I know it and show I know how to find that information with code.*
+*Reflection: At the very end of the document, I conclude that Miranda Priestly is the culprit. However, you noted that I did not check the interview for Miranda Priestly. Originally, I opened the data set in a separate tab to check and found nothing from her. This confused me and I assumed that it means it was the end of the lab so I decided to convict her. This, however, was the wrong course of action. It was not justified through code and there is no way I would have known she did not have a transcript if I hadn’t had access to the raw datasets. Instead, I should have demonstrated my ability to join and filter datasets. I was discussing this in class and have recently discovered the importance not just taking out information but instead coding it in and justifying it.  Sure, I was able to get the correct suspect but it means nothing if I cannot justify it (even down to the very end when checking the interviews). This is important because in a practical setting, it is best to provide your strongest argument and leave no loose ends. Even though I knew there was no transcript, it is important to show that I know it and show I know how to find that information with code.*
 
 Typically half of the text in my reflections were dedicated to directly addressing WHY this fix was important, not only the fact that I made the switch. It is important to get to the root of the issue because that is how you learn & improve for the future. 
 
-Even if a reflection was not needed, I still revised my work and utilized the feedback I received. In particular, I was given comments for every section but had a satisfactory submission such that a revision was not needed. Regardless, I went back and added code such as “+theme(axis.text.x = element_text(size = 7), axis.text.y = element_text(size = 7))” and “theme_bw()+”. Even though they were little changes, I wanted to take advantage of the advice I was given and solidify in my mind that these are important things to remember.
+Even if a reflection was not needed (in the case of a success or ineligibility), I still revised my work and utilized the feedback I received. In particular, I was given comments for every section but had a satisfactory submission such that a revision was not needed. Regardless, I went back and added code such as “+theme(axis.text.x = element_text(size = 7), axis.text.y = element_text(size = 7))” and “theme_bw()+”. Even though they were little changes, I wanted to take advantage of the advice I was given and solidify in my mind that these are important things to remember.
 
 **Extending My Thinking**
 
