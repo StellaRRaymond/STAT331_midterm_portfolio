@@ -468,7 +468,15 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: r-2-3
-#To be learned
+#*
+
+rescale_01 <- function(x, na.rm = TRUE){
+  if(!is.numeric(x) | length(x) <= 1)
+  {stop("change input")}
+  ranging <- range(x, 
+                   na.rm = na.rm)
+  return((x - ranging[1]) / 
+           (ranging[2] - ranging[1]))}
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -486,12 +494,30 @@ ca_childcare |>
   group_by(region)|>
   summarise(median_region = median(mcsa))|>
   slice_min(median_region)
+
+#Additionally, I also use summarise in the context of multiple columns. This code originates from Lab 7
+
+fish |>
+  summarize(across(.cols = trip:species,
+                   .fns = ~sum(is.na(.x)
+                               )
+                   )
+            )
 ```
 
 -   Example of function stops
 
 ```{r}
 #| label: r-3-function-stops
+#This code originates from lab 7 and it is a post-revision line of code. Here I use a function stop to ensure that the input is both numeric and ensure that the input is not greater than 1. 
+
+rescale_01 <- function(x, na.rm = TRUE){
+  if(!is.numeric(x) | length(x) <= 1)
+  {stop("change input")}
+  ranging <- range(x, 
+                   na.rm = na.rm)
+  return((x - ranging[1]) / 
+           (ranging[2] - ranging[1]))}
 ```
 
 ## Data Visualization & Summarization
@@ -846,9 +872,11 @@ baby_table |>
   fmt_percent(proportion) |>
   tab_header(
     title = "Proportion of Correct Baby Returns",
-    subtitle = "Under Randomized Conditions") |>
+    subtitle = "Based on 10,000 Randomized Simulations") |>
+    #subtitle altered after feedback
   opt_stylize(color = "green", 
               add_row_striping = TRUE)
+
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -877,6 +905,8 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-4-across
+# 
+
 rescale_column <- function(df, name)
 {df |> 
     mutate(across(.cols = {{name}},
@@ -970,15 +1000,20 @@ teacher_evals_compare
 
 ```{r}
 #| label: dvs-6-2
-#This code originates from Lab 3 Challenge. Here, I clean up the table such that it is easier to understand and read. In particular, I made the question number the intended number as opposed to having an additional 900 added on. 
-evals |>
-  mutate(sex = gender,
-         teacher_id = as.factor(teacher_id),
-         question_no = question_no-900) |>
-  filter(no_participants >= 10) |>
-  select(course_id:SET_score_avg, 
-         percent_failed_cur, 
-         academic_degree:sex)
+#This code originates from Lab 9 challenge (so, reformated Lab 8). Here, I utilize gt() to reformat the table and create informative titles/subtitles. I also retroactively added a cool new color to the title and subtitle. Here, the count for each of the columns are clearly aligned on the table and striped for easier viewing.
+
+tibble(Parameters = names(fish), 
+       Count = map_int(fish,
+                       ~sum(is.na(.x))
+                       )
+       )|> 
+  gt()|>
+  tab_header(title = md("Blackfoot River Trout Absent Values"),
+             subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout"))|>
+  tab_style(style = cell_fill(color = "darkseagreen3"),
+            locations = cells_title(groups = c("title")))|>
+  tab_style(style = cell_fill(color = "darkseagreen1"),
+            locations = cells_title(groups = c("subtitle")))
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -994,7 +1029,19 @@ evals |>
 
 ```{r}
 #| label: dvs-7-2
-
+#*
+tibble(Parameters = names(fish), 
+       Count = map_int(fish,
+                       ~sum(is.na(.x))
+                       )
+       )|> 
+  gt()|>
+  tab_header(title = md("Blackfoot River Trout Absent Values"),
+             subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout"))|>
+  tab_style(style = cell_fill(color = "darkseagreen3"),
+            locations = cells_title(groups = c("title")))|>
+  tab_style(style = cell_fill(color = "darkseagreen1"),
+            locations = cells_title(groups = c("subtitle")))
 ```
 
 ## Program Efficiency
@@ -1016,13 +1063,57 @@ clean_evals <- evals |>
 
 ```{r}
 #| label: pe-1-across
-#decieded to wait for a future lab
+#*
+rescale_column <- function(df, name)
+{df |> 
+    mutate(across(.cols = {{name}},
+                  ~ rescale_01(.x)))
+  }
 ```
 
 -   `map()` functions
 
 ```{r}
 #| label: pe-1-map-1
+
+#*
+
+all_simulations <- grid |> 
+  mutate(simulated_m = pmap(.l = list(n = n,
+                                      df = df), 
+                            .f = simulate_means)) |> 
+  unnest(simulated_m)
+
+#
+
+randomBabies <- function(nBabies = 4){
+  baby_tib <- tibble(pnum  = 1:nBabies,
+                     bbnum = sample(1:nBabies, 
+                                      size = nBabies, 
+                                      replace = FALSE)) |>
+  mutate(paired = if_else((pnum == bbnum), 
+                          "TRUE", 
+                          "FALSE")) |>
+  filter(paired == "TRUE") |>
+  nrow()
+  return(baby_tib)}
+
+results <- map_int(.x = 1:10000,
+                   .f = ~randomBabies(nBabies = 4))
+
+#
+
+evals |>
+  head() |> #so you don't have a massive output
+  map_at(.at = c("teacher_id", 
+               "weekday", 
+               "academic_degree", 
+               "seniority",
+               "gender"),
+         .f = ~as.factor(.x))|>
+  bind_cols()|>
+  kable()|>
+  kable_classic(lightable_options = "hover")
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -1062,14 +1153,30 @@ surveys |>
 
 ```{r}
 #| label: pe-3-map-1
+#*
 
+tibble(Parameters = names(fish), 
+       Count = map_int(fish,
+                       ~sum(is.na(.x))))|> 
+  gt()|>
+  tab_header(title = md("Blackfoot River Trout Absent Values"),
+             subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout"))
 ```
 
 -   `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
 
 ```{r}
 #| label: pe-3-map-2
+#* 
 
+evals |>
+  head() |> #so you don't have a massive output
+  map_at(.at = c("teacher_id", 
+               "weekday", 
+               "academic_degree", 
+               "seniority",
+               "gender"),
+         .f = ~as.factor(.x))
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -1078,7 +1185,16 @@ surveys |>
 
 ```{r}
 #| label: pe-4-1
+
+#*??
+
+
+
+
+
+
 #This is code from Lab 4. Here, i use pivot_wider() and names_prefix() in conjunction, which is a relatively modern approach to what I wanted to do. Instead of using separate functions to pivot and rename the variable, i was able to do it all in one place. 
+
 ca_childcare |>
   filter(study_year %in% c("2018", 
                            "2008")) |>
@@ -1147,14 +1263,48 @@ ca_childcare |>
 
 ```{r}
 #| label: dsm-1-1
+#*
 
+randomBabies <- function(nBabies = 4){
+  baby_tib <- tibble(pnum  = 1:nBabies,
+                     bbnum = sample(1:nBabies, 
+                                      size = nBabies, 
+                                      replace = FALSE)) |>
+  mutate(paired = if_else((pnum == bbnum), 
+                          "TRUE", 
+                          "FALSE")) |>
+  filter(paired == "TRUE") |>
+  nrow()
+  return(baby_tib)}
+
+results <- map_int(.x = 1:10000,
+                   .f = ~randomBabies(nBabies = 4))
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-1-2
+# This code originates from Lab 9 (the extra questions). Here, I utilize rchisq() and create a function to help me mass simulate using the chi squared probability model. 
+simulate_means <- function(n, df){
+  map_dbl(.x = 1:100, #*****
+          .f = ~rchisq(n = n, df = df) |> 
+          mean()
+          )
+}
+# I then apply it by creating a grid and applying it as a list
 
+grid <- crossing(n = c(10,
+                       100,
+                       1000,
+                       10000), 
+                 df = 10)
+#df changed after feedback
+all_simulations <- grid |> 
+  mutate(simulated_m = pmap(.l = list(n = n,
+                                      df = df), 
+                            .f = simulate_means)) |> 
+  unnest(simulated_m) 
 ```
 
 **DSSM-2: I can conduct common statistical analyses in R.**
