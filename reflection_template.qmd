@@ -24,7 +24,7 @@ execute:
 
 ```{r}
 #| label: wd-1-csv
-#This originated from Lab 2 Challenge, the very first load in. I removed library(viridis) becuase that is not relevant here.
+#This originated from Lab 2 Challenge (the first load in), the very first load in. I removed library(viridis) becuase that is not relevant here.
 library(tidyverse)
 library("here")
 surveys <- read_csv(here::here("data","surveys.csv"))
@@ -47,7 +47,10 @@ military <- read_xlsx(here::here("data",
 ```{r}
 #| label: wd-1-txt
 #This code originates from Check-in 2.3. 
-ages_tab <- read_table(file = here::here("Week 2", "Check-ins", "Ages_Data", "ages_tab.txt"))
+ages_tab <- read_table(file = here::here("Week 2", 
+                                         "Check-ins", 
+                                         "Ages_Data", 
+                                         "ages_tab.txt"))
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -68,7 +71,6 @@ ca_childcare |>
              values_from = median_region,
              names_prefix = "mhi_in_")|>
   ungroup()
-
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -97,13 +99,16 @@ ca_childcare |>
 
 ```{r}
 #| label: wd-3-string
-#This question originates from Lab 5. In this particular chunk, I filter using str_detect so I could extract all Annabels regardless of 
-person |>
+#This question originates from Lab 5. In this particular chunk, I filter using str_detect so I could extract all Annabels
+person |> 
+  full_join(interview,
+            join_by(id == person_id))|>
   filter(
-    address_street_name == "Franklin Ave",
-    str_detect(name, "Annabel")) |>
-  pull(name,
-       id)
+    (address_street_name == "Northwestern Dr" & address_number == max(address_number)) |
+    (address_street_name == "Franklin Ave" & str_detect(name, "^Annabel"))
+         )|>
+    pull(transcript,
+         name)
 ```
 
 -   factor
@@ -140,7 +145,7 @@ crime_scene_report |>
 
 ```{r}
 #| label: wd-4-numeric
-#This originates from the set up in Lab 3 Challenge. Here, I am creating a cleaner version of the dataset's question_no variable by subtracting 900 (effectively converting each question number into the a number 1-9 isntead of 901-909).
+#This originates from the set up in Lab 3 Challenge (the first chunk). Here, I am creating a cleaner version of the dataset's question_no variable by subtracting 900 (effectively converting each question number into the a number 1-9 isntead of 901-909).
 clean_evals <- evals |>
   mutate(sex = gender,
          teacher_id = as.factor(teacher_id),
@@ -151,10 +156,11 @@ clean_evals <- evals |>
 
 ```{r}
 #| label: wd-4-string
-#This originates from Lab 4 Question3. Here I modify the existing county name and create a new variable with the same name that removes " Count" from all values within. 
-ca_childcare <- ca_childcare |> 
-  mutate(county_name = str_remove(county_name, 
-                                  " County"))
+#
+
+
+
+
 ```
 
 -   factor (example must use functions from **forcats**)
@@ -486,7 +492,6 @@ ca_childcare |>
 
 ```{r}
 #| label: r-3-function-stops
-#not learned yet
 ```
 
 ## Data Visualization & Summarization
@@ -538,14 +543,14 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-2-num-cat
-#This code originates from my Lab 2 challenge. (Here I deleted an extra comma but other than that, should be good). Numeric: wight Cat: species
+#This code originates from my Lab 2 challenge (the third chunk). (Here I deleted an extra comma but other than that, should be good). Numeric: wight Cat: species
 ggplot(data = surveys,
        mapping = aes(
          x= weight, 
          y= species)) +
   geom_jitter(alpha=0.5, 
               color="green4")+
-  geom_density_ridges(alpha-0.5)+
+  geom_density_ridges(alpha=0.5)+
   labs(
     x="Weight (g)", 
     y="", 
@@ -557,7 +562,7 @@ ggplot(data = surveys,
 
 ```{r}
 #| label: dvs-2-cat
-#This is from Lab 2 Challenge. Here I create a graph using the vector color pallete "Palette_Earth" I created. The two categorical variables are Genus and Species. 
+#This is from Lab 2 Challenge (the 4th and 5th chunks). Here I create a graph using the vector color pallete "Palette_Earth" I created. The two categorical variables are Genus and Species. 
 
 Palette_Earth <- c("#a0eb67", "#83ba59", "#3e6b1b", "#78eb05", "#ffd673", "#c99f3a", "#8a6204", "#d9cb0f")
 
@@ -741,7 +746,7 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-3-1
-#I used non standard colors in Lab 2 challenge question by using colors from packages ggsci and viridis
+#I used non standard colors in Lab 2 challenge (7th and 8th chunks) by using colors from packages ggsci and viridis
 surveys |> 
   ggplot(aes(x = weight, y = species, color = genus)
          ) +
@@ -762,7 +767,7 @@ surveys |>
 
 ```{r}
 #| label: dvs-3-2
-#This code is from lab 3 challenge and I have updated it such that I included annotations in the graph to better visualize which section of the stacked bar graph is which. This was not included in the revisions but added here.
+#This code is from lab 3 challenge (question 2) and I have updated it such that I included annotations in the graph to better visualize which section of the stacked bar graph is which. This was not included in the revisions but added here.
 teacher_evals_compare |>
 ggplot(mapping=aes(x = sen_level, 
                    fill = SET_level)) +
@@ -823,13 +828,27 @@ ca_childcare |>
        subtitle = "Y-axis representing Full-Time Median Weekly Price ($)",
        color = "California Region")
 
-#
+#Additionally, I chose to show my creativity in my Lab 9 challenge when changing up the tables. As a result, I added percentages, changed color to green (my favorite color I commonly use), utilized subtitle to specify my table, and added table striping. 
 
+baby_table <- enframe(results, 
+        name = "simulation_number", 
+        value = "ncorrect") |>
+  group_by(ncorrect) |>
+  count() |>
+  ungroup() |>
+  mutate(proportion = n/sum(n)) |>
+  select(ncorrect,
+         proportion)
 
-
-
-
-
+baby_table |>
+  rename("correct returns" = ncorrect) |>
+  gt() |>
+  fmt_percent(proportion) |>
+  tab_header(
+    title = "Proportion of Correct Baby Returns",
+    subtitle = "Under Randomized Conditions") |>
+  opt_stylize(color = "green", 
+              add_row_striping = TRUE)
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -858,7 +877,13 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-4-across
-#decieded to wait for a future lab
+rescale_column <- function(df, name)
+{df |> 
+    mutate(across(.cols = {{name}},
+                  ~ rescale_01(.x)
+                  )
+           )
+  }
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
@@ -868,7 +893,6 @@ ca_childcare |>
 ```{r}
 #| label: dvs-5-1
 #The code originates from Lab 4 question 4. Here, I am able to summarize the median region household income based on 2018 values. In this chunk, i group by the two groups region and study_year.
-
 ca_childcare |>
   filter(study_year %in% c("2018", 
                            "2008")) |>
@@ -888,7 +912,18 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-5-2
+#Additionally, I've used the group_by() function to creatue an attendance variable by utilizing the event_name and id variables. This code originates from my updated Lab 5 revisions.
 
+inner_join(person,
+           drivers_license,
+           join_by(license_id == id)) |>
+  inner_join(facebook_event_checkin,
+           join_by(id == person_id)) |>
+  inner_join(income, join_by(ssn == ssn)) |>
+  mutate(comparative_income = mean(annual_income)) |>
+  group_by(id, event_name) |>
+  mutate(attendance = n()) |>
+  ungroup()
 ```
 
 **DVS-6: I can create tables which make my summaries clear to the reader.**
@@ -988,7 +1023,6 @@ clean_evals <- evals |>
 
 ```{r}
 #| label: pe-1-map-1
-#not learned yet
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -997,7 +1031,7 @@ clean_evals <- evals |>
 
 ```{r}
 #| label: pe-2-1
-#This is from Lab 2 Challenge. Here I create a vector to house the colors I wanted for my graph. then I use the vector to color the graph
+#This is from Lab 2 Challenge (chunk 1). Here I create a vector to house the colors I wanted for my graph. then I use the vector to color the graph
 Palette_Earth <- c("#a0eb67", "#83ba59", "#3e6b1b", "#78eb05", "#ffd673", "#c99f3a", "#8a6204", "#d9cb0f")
 
 surveys |> 
@@ -1129,7 +1163,7 @@ ca_childcare |>
 
 ```{r}
 #| label: dsm-2-1
-#This code is from Lab 3 challenge. In here, I run a chi squared test between the seniority level of professors and the SET level average for question 3 (a review of activities in their class). 
+#This code is from Lab 3 challenge (last chunk). In here, I run a chi squared test between the seniority level of professors and the SET level average for question 3 (a review of activities in their class). 
 chisq.test(teacher_evals_compare$sen_level, 
            teacher_evals_compare$SET_level)
 ```
