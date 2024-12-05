@@ -10,6 +10,7 @@ execute:
   eval: false
   echo: true
   message: false
+code-fold: false
 ---
 
 [**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an -A.
@@ -25,7 +26,6 @@ execute:
 ```{r}
 #| label: wd-1-csv
 #This originated from Lab 2 Challenge (the first load in), the very first load in. I removed library(viridis) becuase that is not relevant here.
-library(tidyverse)
 library("here")
 surveys <- read_csv(here::here("data","surveys.csv"))
 ```
@@ -122,21 +122,41 @@ person |>
 
 ```{r}
 #| label: wd-3-date
-#This code comes from Lab 5. Originally, I did not convert the dates into lubridate dates. However, 
-crime_scene_report |>
-  filter(date == 20180115,
-         type == "murder",
-         city == "SQL City") |>
-  pull(description)
-
-#Here is the updated code USING lubridate instead of filtering it just as a numeric value
-crime_scene_report |>
-  mutate(date = ymd(date)
-         )|>
-  filter(date == "2018-01-15",
-         type == "murder",
-         city == "SQL City") |>
-  pull(description)
+#This code comes from Lab 5. Originally, I did not convert the dates into lubridate dates (or even utilize the dates as an important means of finding the person). However, I recently looked back and saw that Miranda went to the symphony *specifically* in december 2017. I revisited this code and filtered the year 2017 and the month 12 to ensure that she was the culprit. 
+inner_join(person,
+           drivers_license,
+           join_by(license_id == id)) |>
+  inner_join(facebook_event_checkin,
+           join_by(id == person_id)) |>
+  inner_join(income, join_by(ssn == ssn)) |>
+  mutate(comparative_income = mean(annual_income),
+         date = ymd(date)) |>
+  group_by(id, event_name) |>
+  mutate(attendance = n()) |>
+  ungroup()|>
+  select(id,
+         hair_color,
+         name,
+         height,
+         plate_number,
+         car_make,
+         car_model,
+         attendance,
+         ssn,
+         annual_income,
+         comparative_income,
+         date) |>
+  filter(year(date) == 2017,
+         month(date) == 12,
+         hair_color == "red",
+         height == c(65:67),
+         car_make == "Tesla",
+         car_model == "Model S",
+         attendance == 3,
+         annual_income > comparative_income) |>
+  slice(1)|>
+  pull(name,
+       id)
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -156,10 +176,20 @@ clean_evals <- evals |>
 
 ```{r}
 #| label: wd-4-string
-#
+#This code originates from Lab 9. It is my submitted code but I realized that I could do better. I could automate the alterations by using stringr. (see beneath this line of code).
+all_simulations |>
+  mutate(n = as.character(n), 
+         n = fct_recode(n, 
+             `10 Simulations` = "10", 
+             `100 Simulations` = "100", 
+             `1000 Simulations` = "1000", 
+             `10000 Simulations` = "10000"))
 
+#I quickly realised that this was not as efficient as it could/should be. I loaded in the stringr package and altered the code such that it added " Simulations" to the end. 
 
-
+all_simulations |>
+  mutate(n = str_glue("{n} Simulations"),
+         n = as.character(n))
 
 ```
 
@@ -185,20 +215,66 @@ ca_childcare |>
                     "Infant" = "mc_infant",
                     "Toddler" = "mc_toddler",
                     "Preschool" = "mc_preschool"))
+
+
+#Additionally, I demonstrated my ability to modify factors in a more recent lab. From Lab 9, i change the names of the factors by using fct_recode. However! upon looking back, I do no approve of this code and wanted to incorperate it to show I can efficiently alter code!
+all_simulations |>
+  mutate(n = as.character(n), 
+         n = fct_recode(n, 
+             `10 Simulations` = "10", 
+             `100 Simulations` = "100", 
+             `1000 Simulations` = "1000", 
+             `10000 Simulations` = "10000"))
+
+#I then realized that I could have done a lot better in regards to my efficiency. I changed it to the following code. Eventhough it is not a fct_recode, I still wanted to include it in this section to show I know how to use multiple methods and identify areas of efficiency improvement
+all_simulations |>
+  mutate(n = str_glue("{n} Simulations"),
+         n = as.character(n))
 ```
 
 -   date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-4-date
-#As mentioned in WD-3, this line of code comes from Lab 5 and is altered from my original submission to include a date mutation with lubridate using ymd()
-crime_scene_report |>
-  mutate(date = ymd(date)
-         )|>
-  filter(date == "2018-01-15",
-         type == "murder",
-         city == "SQL City") |>
-  pull(description)
+#As mentioned in WD-3, this line of code comes from Lab 5 and is altered from my original submission. Here is an alternative fix to my WD-3 date fix. Here, I first use lubridate to convert my date into ymd and use these dates create new year and month columns. I modify the ymd dates and extract the data. This outputs the same result as the other line of code but just uses a slightly different method.
+
+inner_join(person,
+           drivers_license,
+           join_by(license_id == id)) |>
+  inner_join(facebook_event_checkin,
+           join_by(id == person_id)) |>
+  inner_join(income, join_by(ssn == ssn)) |>
+  mutate(comparative_income = mean(annual_income),
+         date = ymd(date),
+         year = year(date),
+         month = month(date)) |>
+  group_by(id, event_name) |>
+  mutate(attendance = n()) |>
+  ungroup()|>
+  select(id,
+         hair_color,
+         name,
+         height,
+         plate_number,
+         car_make,
+         car_model,
+         attendance,
+         ssn,
+         annual_income,
+         comparative_income,
+         year,
+         month) |>
+  filter(year == 2017,
+         month == 12,
+         hair_color == "red",
+         height == c(65:67),
+         car_make == "Tesla",
+         car_model == "Model S",
+         attendance == 3,
+         annual_income > comparative_income) |>
+  slice(1)|>
+  pull(name,
+       id)
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -220,6 +296,7 @@ ca_childcare <- counties |>
 ```{r}
 #| label: wd-5-right
 #This is from Lab 5, a portion of the lab I am currently revising. Here, I confirm that the suspect is the true murderer by joining the two dataframes and pulling her name.
+#I wanted to use a right join here because an interjoin would remove the NA. Here, I was checking if Miranda had an interview or not and wanted an output of either the interview trascript or an NA
 right_join(interview,
            person,
            join_by(person_id == id))|>
@@ -255,6 +332,8 @@ person |>
          )|>
     pull(transcript,
          name)
+
+#This was deleted from requirements!*
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -528,41 +607,24 @@ rescale_01 <- function(x, na.rm = TRUE){
 
 ```{r}
 #| label: dvs-1-num
-#This is from Lab 4 Question 6. Here, the two numeric variables are year and cost of child support. 
-ca_childcare |>
-  select(region, 
-         study_year, 
-         mc_infant,
-         mc_toddler,
-         mc_preschool) |>
-  pivot_longer(cols = mc_infant:mc_preschool,
-               names_to = "age",
-               values_to = "price") |>
-  mutate(age = fct(age,
-                   levels = c("mc_infant",
-                              "mc_toddler",
-                              "mc_preschool")),
-         age = fct_recode(.f = age,
-                    "Infant" = "mc_infant",
-                    "Toddler" = "mc_toddler",
-                    "Preschool" = "mc_preschool"))|>
-  ggplot(mapping = aes(x = study_year,
-                       y = price,
-                       color = fct_reorder2(.f = region,
-                                           .x = study_year,
-                                           .y = price)))+
-  geom_smooth() +
-  geom_point() +
-  facet_wrap(~age) +
-  scale_x_continuous(n.breaks = 6) +
-  scale_y_continuous(n.breaks = 5, labels = label_dollar()) +
-  theme_bw() +
-  labs(x = "Study Year",
+#
+
+
+#This code originates from Lab 9 question 3. Here, I visualize the 
+#as mentioned, font change help by means of the help bar in RStudio
+
+baby_table |>
+  ggplot(mapping = aes(x = ncorrect, 
+                       y = proportion)) +  
+  geom_bar(stat = "identity") +
+  labs(title = "Percentage of Correctly Paired Families",
        y = "",
-       title = "Weekly Median Price for Center-Based Childcare ($)",
-       color = "California Region") +
-  theme(axis.text.x = element_text(size = 7),
-        axis.text.y = element_text(size = 7)) 
+       subtitle = "Sample of 4 Babies  Under Random Conditions",
+       x = "Correct Babies Returned") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_bw(base_family = "sans", 
+           base_size = 11)
+
 ```
 
 -   at least one numeric variable and one categorical variable
@@ -571,17 +633,15 @@ ca_childcare |>
 #| label: dvs-2-num-cat
 #This code originates from my Lab 2 challenge (the third chunk). (Here I deleted an extra comma but other than that, should be good). Numeric: wight Cat: species
 ggplot(data = surveys,
-       mapping = aes(
-         x= weight, 
-         y= species)) +
-  geom_jitter(alpha=0.5, 
-              color="green4")+
-  geom_density_ridges(alpha=0.5)+
-  labs(
-    x="Weight (g)", 
-    y="", 
-    title= "Relationship Between Rodent Weight and Hindfoot Length",
-    subtitle= "Y-axis representing Species")
+       mapping = aes(x = weight, 
+                     . = species)) +
+  geom_jitter(alpha = 0.5, 
+              color = "green4") +
+  geom_density_ridges(alpha = 0.5) +
+  labs(x="Weight (g)", 
+       y="", 
+       title= "Relationship Between Rodent Weight and Hindfoot Length",
+       subtitle= "Y-axis representing Species")
 ```
 
 -   at least two categorical variables
@@ -609,7 +669,7 @@ surveys |>
 ```{r}
 #| label: dvs-2-date
 
-CHECK?
+
 ca_childcare |>
   select(region, 
          study_year, 
@@ -801,7 +861,7 @@ ggplot(mapping=aes(x = sen_level,
   theme_bw()+
   scale_fill_manual(values = c("#2d73b5",
                                "#c97a0a")) +
-  geom_bar() +
+  geom_bar(show.legend = FALSE) +
   annotate("text", 
            y = 50,
            x = "senior", 
@@ -827,6 +887,7 @@ ggplot(mapping=aes(x = sen_level,
        y="",
        subtitle = "Number of Sections",
        fill = "SET Level")
+#recently added show.legend = FALSE after you suggested to remove the legend*
 ```
 
 -   I can be creative...
@@ -854,28 +915,32 @@ ca_childcare |>
        subtitle = "Y-axis representing Full-Time Median Weekly Price ($)",
        color = "California Region")
 
-#Additionally, I chose to show my creativity in my Lab 9 challenge when changing up the tables. As a result, I added percentages, changed color to green (my favorite color I commonly use), utilized subtitle to specify my table, and added table striping. 
-
-baby_table <- enframe(results, 
-        name = "simulation_number", 
-        value = "ncorrect") |>
-  group_by(ncorrect) |>
-  count() |>
-  ungroup() |>
-  mutate(proportion = n/sum(n)) |>
-  select(ncorrect,
-         proportion)
+#Additionally, I chose to show my creativity in my Lab 9 challenge (Lab 9 question 2) when changing up the tables. As a result, I added percentages, changed color to green (my favorite color I commonly use), utilized subtitle to specify my table, and added table striping. 
 
 baby_table |>
-  rename("correct returns" = ncorrect) |>
+  pivot_wider(values_from = proportion,
+              names_from = ncorrect) |>
   gt() |>
-  fmt_percent(proportion) |>
+  fmt_percent() |>
   tab_header(
-    title = "Proportion of Correct Baby Returns",
-    subtitle = "Based on 10,000 Randomized Simulations") |>
-    #subtitle altered after feedback
+    title = "Correctly Paired Families Under Random Conditions",
+    subtitle = "Sample Size of 4 Babies") |>
   opt_stylize(color = "green", 
               add_row_striping = TRUE)
+
+#Additionally, in the same lab (lab 9 question 3), I created this visualization. I changed the y-axis into percentages, utilized theme_bw to alter the font and size, and created descriptive titles.
+
+baby_table |>
+  ggplot(mapping = aes(x = ncorrect, 
+                       y = proportion)) +  
+  geom_bar(stat = "identity") +
+  labs(title = "Percentage of Correctly Paired Families",
+       y = "",
+       subtitle = "Sample of 4 Babies  Under Random Conditions",
+       x = "Correct Babies Returned")+
+  scale_y_continuous(labels = label_percent())+
+  theme_bw(base_family = "sans", 
+           base_size = 11)
 
 ```
 
@@ -899,20 +964,21 @@ ca_childcare |>
              values_from = median_region,
              names_prefix = "mhi_in_")|>
   ungroup()
+#fixed the grouping after midterm portfolio input
 ```
 
 -   Example using `across()`
 
 ```{r}
 #| label: dvs-4-across
-# 
+# Here is some code originating from lab 7 question 8. Here I use across within a function with a dataframe check (of which, i added with revisions and with the help of the R help bar). Here, I am using across to look at the name input and uses my other function rescale_01 to rescale the dataframe values. I also removed unnecessary quotation marks after submission in my revision.
 
-rescale_column <- function(df, name)
-{df |> 
+rescale_column <- function(df, name){
+  if(!is.data.frame(df))
+  {stop("change input")}
+  df |> 
     mutate(across(.cols = {{name}},
-                  ~ rescale_01(.x)
-                  )
-           )
+                  ~ rescale_01(.x)))
   }
 ```
 
@@ -977,23 +1043,22 @@ ca_childcare |>
              names_prefix = "median_household_income_")|>
   ungroup()
 
-#Additionally, I could alter my code from Lab 3 Challenge such that SET and sen are more clear. Below is an alteration I made to do so. Here is the altered code:
-
-teacher_evals_compare <- clean_evals |>
-  filter(question_no == 3) |>
-  mutate(SET_Q3_score_average = if_else(SET_score_avg >= 4,
-                            "excellent",
-                            "standard"),
-         seniority_level = if_else(seniority <= 4,
-                             "junior",
-                             "senior"))|>
-  select(course_id,
-         SET_Q3_score_average,
-         seniority_level)
-
-teacher_evals_compare
-
 #I changed SET_level -> SET_Q3_score_average and sen_level -> seniority_level
+
+#Below, I've also created a table to display the simulated baby returns in Lab 9 (challenge). Additionally, I create striping, titles and subtitles, and converted proportions into percentages for easier reading
+
+baby_table |>
+  pivot_wider(values_from = proportion,
+              names_from = ncorrect) |>
+  gt() |>
+  fmt_percent() |>
+  tab_header(
+    title = "Correctly Paired Families Under Random Conditions",
+    subtitle = "Sample Size of 4 Babies") |>
+  opt_stylize(color = "green", 
+              add_row_striping = TRUE)
+#After recieving feedback, I pivoted the table wider and made the title a bit more detailed
+
 ```
 
 -   Example 2
@@ -1001,7 +1066,6 @@ teacher_evals_compare
 ```{r}
 #| label: dvs-6-2
 #This code originates from Lab 9 challenge (so, reformated Lab 8). Here, I utilize gt() to reformat the table and create informative titles/subtitles. I also retroactively added a cool new color to the title and subtitle. Here, the count for each of the columns are clearly aligned on the table and striped for easier viewing.
-
 tibble(Parameters = names(fish), 
        Count = map_int(fish,
                        ~sum(is.na(.x))
@@ -1194,7 +1258,6 @@ evals |>
 
 
 #This is code from Lab 4. Here, i use pivot_wider() and names_prefix() in conjunction, which is a relatively modern approach to what I wanted to do. Instead of using separate functions to pivot and rename the variable, i was able to do it all in one place. 
-
 ca_childcare |>
   filter(study_year %in% c("2018", 
                            "2008")) |>
@@ -1263,13 +1326,13 @@ ca_childcare |>
 
 ```{r}
 #| label: dsm-1-1
-#*
+#This code originates from Lab 9 question 1 and here I write a function to simulate a single randomized combination of babies to their families to see the number of random correct returns. Here, I use sample() as my probability model
 
 randomBabies <- function(nBabies = 4){
   baby_tib <- tibble(pnum  = 1:nBabies,
                      bbnum = sample(1:nBabies, 
-                                      size = nBabies, 
-                                      replace = FALSE)) |>
+                                    size = nBabies, 
+                                    replace = FALSE)) |>
   mutate(paired = if_else((pnum == bbnum), 
                           "TRUE", 
                           "FALSE")) |>
@@ -1299,7 +1362,7 @@ grid <- crossing(n = c(10,
                        1000,
                        10000), 
                  df = 10)
-#df changed after feedback
+#df was changed after feedback
 all_simulations <- grid |> 
   mutate(simulated_m = pmap(.l = list(n = n,
                                       df = df), 
