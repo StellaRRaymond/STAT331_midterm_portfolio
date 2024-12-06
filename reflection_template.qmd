@@ -114,7 +114,26 @@ person |>
 
 ```{r}
 #| label: wd-3-factor
-#i have decided to wait for a future lab in which I can utilize this
+#Here is code from lab 4 question 2 where I filter out the dataset to only have califronian values. 
+ca_childcare <- counties |>
+  filter(state_abbreviation == "CA") |>
+  left_join(childcare_costs,
+            by = join_by(county_fips_code == county_fips_code))
+
+#additionally, this is a line of code from lab 9 question 1 where I filter the correctly paired families in order to count up the total correctly randomized families (absent of FALSE values).
+
+randomBabies <- function(nBabies = 4){
+  baby_tib <- tibble(pnum  = 1:nBabies,
+                     bbnum = sample(1:nBabies, 
+                                      size = nBabies, 
+                                      replace = FALSE)) |>
+  mutate(paired = if_else((pnum == bbnum), 
+                          "TRUE", 
+                          "FALSE")) |>
+  filter(paired == "TRUE") |>
+  nrow()
+  return(baby_tib)}
+
 ```
 
 -   date (example must use functions from **lubridate**)
@@ -376,7 +395,19 @@ inner_join(person,
 
 ```{r}
 #| label: wd-6-anti
-#I chose to wait for a future lab in which i can utilize this function
+#This code originates from Lab 5 and it is the very last code chunk confirming who the final suspect is. I created this code after submission, atering it from my original code. Let me walk you thought process. 
+#I used an anti join between the person and interview. This only keeps the people who are NOT included in the interview dataset. I then specifically look for Miranda. If she did have an interview, her name would not be present. If she DIDN'T have an interview, her name would show up. So, if she is suspiciously without an interview, it would return true (and false if not).
+
+suspect <- anti_join(person,
+                     interview,
+                     join_by(id == person_id))|>
+  select(name)|>
+  filter(str_detect(name, "Miranda Priestly"))
+
+  if (nrow(suspect) > 0) 
+     {print("Suspicious = TRUE")
+      } else{print("Suspicious = FALSE")
+      }
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -428,6 +459,8 @@ I've done this in the following provided assignments:
 -   Lab 4
 
 -   Lab 5
+
+-   Lab 8 & Lab 9 from Challenge 9
 
 **R-2: I can write well documented and tidy code.**
 
@@ -963,7 +996,7 @@ ca_childcare |>
              values_from = median_region,
              names_prefix = "mhi_in_")|>
   ungroup()
-#fixed the grouping after midterm portfolio input
+#fixed the grouping after midterm portfolio suggestion
 ```
 
 -   Example using `across()`
@@ -977,7 +1010,7 @@ rescale_column <- function(df, name){
   {stop("change input")}
   df |> 
     mutate(across(.cols = {{name}},
-                  ~ rescale_01(.x)))
+                  .fns = ~rescale_01(.x)))
   }
 ```
 
@@ -1066,17 +1099,21 @@ baby_table |>
 #| label: dvs-6-2
 #This code originates from Lab 9 challenge (so, reformated Lab 8). Here, I utilize gt() to reformat the table and create informative titles/subtitles. I also retroactively added a cool new color to the title and subtitle. Here, the count for each of the columns are clearly aligned on the table and striped for easier viewing.
 tibble(Parameters = names(fish), 
-       Count = map_int(fish,
-                       ~sum(is.na(.x))
-                       )
-       )|> 
+       Count = map_int(.x = fish,
+                       .f = ~sum(is.na(.x))
+                       ))|> 
   gt()|>
   tab_header(title = md("Blackfoot River Trout Absent Values"),
-             subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout"))|>
+             subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout")
+             )|>
   tab_style(style = cell_fill(color = "darkseagreen3"),
-            locations = cells_title(groups = c("title")))|>
+            locations = cells_title(groups = c("title"))
+            )|>
   tab_style(style = cell_fill(color = "darkseagreen1"),
-            locations = cells_title(groups = c("subtitle")))
+            locations = cells_title(groups = c("subtitle"))
+            )|>
+  opt_stylize(color = "green", 
+              add_row_striping = TRUE)
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -1085,26 +1122,42 @@ tibble(Parameters = names(fish),
 
 ```{r}
 #| label: dvs-7-1
-
+#*
+tibble("Column Name" = colnames(surveys),
+       "Value Type" = map_chr(.x = surveys, 
+                              .f = typeof)) |>
+  bind_cols() |>
+  gt() |>
+  tab_header(title = "Column and Value Types",
+             subtitle = "From BlackfootFish Dataset")|>
+  tab_style(style = cell_fill(color = "cornsilk"),
+            locations = cells_title(groups = c("subtitle"))) |>
+  tab_style(style = cell_fill(color = "cornsilk3"),
+            locations = cells_title(groups = c("title")))
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-7-2
-#*
+#Here is a line of code from Lab 9 Challenge (lab 8, question 4 (originally from lab 7)). I show my creativity. This code combines my original code, revisions after input, and my recent additionas. As mentioned, I am a fan of green. Here, I watned to use different colors/shades of green that I liked to emphasize the titles. I also added striping which helped viewing. I also showed my creativity by placing the species names in the subtitle, making it organized and pretty. 
 tibble(Parameters = names(fish), 
-       Count = map_int(fish,
-                       ~sum(is.na(.x))
+       Count = map_int(.x = fish,
+                       .f = ~sum(is.na(.x))
                        )
        )|> 
   gt()|>
   tab_header(title = md("Blackfoot River Trout Absent Values"),
-             subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout"))|>
+             subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout")
+             )|>
   tab_style(style = cell_fill(color = "darkseagreen3"),
-            locations = cells_title(groups = c("title")))|>
+            locations = cells_title(groups = c("title"))
+            )|>
   tab_style(style = cell_fill(color = "darkseagreen1"),
-            locations = cells_title(groups = c("subtitle")))
+            locations = cells_title(groups = c("subtitle"))
+            )|>
+  opt_stylize(color = "green", 
+              add_row_striping = TRUE)
 ```
 
 ## Program Efficiency
@@ -1120,17 +1173,62 @@ clean_evals <- evals |>
   mutate(sex = gender,
          teacher_id = as.factor(teacher_id),
          question_no = question_no-900)
+#I also use efficiency by using one function to do the work of one. For example, in this code chunk from Lab 8 question 3, I pivot twice then use the select() function to both select the columns I want as well as rename the columns (instead of using select then rename). I am especially proud of my ability to replicate this table without asking for assistance. 
+
+evals |>
+  mutate(seniority_level = if_else(seniority <= 4,
+                             "junior",
+                             "senior")
+         ) |>
+  select(sex, 
+         seniority_level, 
+         academic_degree,
+         teacher_id) |>
+  distinct(teacher_id,
+           .keep_all = TRUE) |>
+  pivot_longer(cols = sex:academic_degree,
+               names_to = "columns",
+               values_to = "values") |>
+  count(values) |>
+  pivot_wider(names_from = values,
+               values_from = n) |>
+  bind_cols() |>
+#The rest is just for visuals
+  select(Female = female,
+         Male = male,
+        "Junior (4 years or less)" = junior,
+        "Senior (4 years or more)" = senior,
+        "No Degree" = no_dgr,
+         Masters = ma,
+         Doctorate = dr,
+         Professor = prof)|>
+  kable() |> 
+  kable_styling(bootstrap_options = "striped") 
+#alternations made to this code after getting your advice. 
+
+#Lastly, I use the names_glue() function to alter the names of the new pivoted columns automatically. This is from Lab 9 question 7. This prevents the need to use the rename() function. 
+
+all_simulations |>
+  select(!df) |>
+  unnest(simulated_m) |>
+  pivot_wider(names_from = n, 
+              values_from = simulated_m,
+              names_glue = "{n} simulations",
+              values_fn = mean) 
+
 ```
 
 -   `across()`
 
 ```{r}
 #| label: pe-1-across
-#*
-rescale_column <- function(df, name)
-{df |> 
+#This code comes from Lab 7 question 8 (after revisions). Here, I utilize mutate(across()) within a function to automate my rescale_01() function such that I can use it for an inputted dataframe. 
+rescale_column <- function(df, name){
+  if(!is.data.frame(df))
+  {stop("change input")}
+  df |> 
     mutate(across(.cols = {{name}},
-                  ~ rescale_01(.x)))
+                  .fns = ~rescale_01(.x))) #.fns added for proper formatting
   }
 ```
 
@@ -1139,7 +1237,7 @@ rescale_column <- function(df, name)
 ```{r}
 #| label: pe-1-map-1
 
-#*
+#This code originates from Lab 9 Question 6. Here, I utilize pmap() to analyze probability. 
 
 all_simulations <- grid |> 
   mutate(simulated_m = pmap(.l = list(n = n,
@@ -1147,7 +1245,7 @@ all_simulations <- grid |>
                             .f = simulate_means)) |> 
   unnest(simulated_m)
 
-#
+#This code also originates from Lab 9 but from Question 1. Here, I utilize map_int to simulate 10,000 simulations from the randomBabies code
 
 randomBabies <- function(nBabies = 4){
   baby_tib <- tibble(pnum  = 1:nBabies,
@@ -1164,7 +1262,7 @@ randomBabies <- function(nBabies = 4){
 results <- map_int(.x = 1:10000,
                    .f = ~randomBabies(nBabies = 4))
 
-#
+#Lastly, this code is from Lab 8 where I revised lab 3 in question 2. Here, i use map_at() to identify the specfic columns I wanted to alter using as.factor(). This increased efficiency (instead of just using as.factor() on each individual column).
 
 evals |>
   head() |> #so you don't have a massive output
@@ -1200,16 +1298,36 @@ surveys |>
 
 ```{r}
 #| label: pe-2-2
+#This code is from Lab 7, question 8. Here, I create a function that takes a inputted dataframe "df" and rescales the specific name you give it with the rescale_01() function. 
 
+rescale_column <- function(df, name){
+  if(!is.data.frame(df))
+  {stop("change input")}
+  df |> 
+    mutate(across(.cols = {{name}},
+                  .fns = ~rescale_01(.x)))
+    }
+
+fish |>
+  rescale_column(name = c(weight,
+                          length))
 ```
 
-**PE-3:I can use iteration to reduce repetition in my code.**
+**PE-3: I can use iteration to reduce repetition in my code.**
 
 -   `across()`
 
 ```{r}
 #| label: pe-3-across
+#Again, this code originates from lab question 8. Here, I use across such that I can rescale_01() multiple columns at once instead of repeating the same code. 
 
+function(df, name){
+  if(!is.data.frame(df))
+  {stop("change input")}
+  df |> 
+    mutate(across(.cols = {{name}},
+                  .fns = ~rescale_01(.x)))
+    }
 ```
 
 -   `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
@@ -1248,13 +1366,23 @@ evals |>
 
 ```{r}
 #| label: pe-4-1
-
-#*??
-
-
-
-
-
+#There are a few instances in Lab 5 where I used join_by() which is a function that is relatively more stable/non-depreciated as compared to by = c(). Below, i join by a column with different names. I use a join_by that has different column names (license_id == id) and (id == person_id). 
+#I also join by columns with the same name. I make sure to use join_by() and include the same column name to make sure that I am confident that this is the column being used. It may seem repetitive but it is to confirm and ensure name is the joining column.
+inner_join(person,
+           drivers_license,
+           join_by(license_id == id)
+           ) |>
+  filter(str_detect(
+         plate_number, "H42W"))|>
+  select(name,
+         id
+         ) |>
+  semi_join(gym_names,
+            join_by(name == name)) |>
+  inner_join(interview,
+            join_by(id == person_id)
+            )|>
+  pull(transcript)
 
 #This is code from Lab 4. Here, i use pivot_wider() and names_prefix() in conjunction, which is a relatively modern approach to what I wanted to do. Instead of using separate functions to pivot and rename the variable, i was able to do it all in one place. 
 ca_childcare |>
@@ -1277,7 +1405,6 @@ ca_childcare |>
 ```{r}
 #| label: pe-4-2
 #This code is from Lab 4 question 6. Here, i wrangle data using pivoting, selecting, and mutating. Afterwards, I connect it into a ggplot() function. 
-
 ca_childcare |>
   select(region, 
          study_year, 
