@@ -6,16 +6,26 @@ editor: visual
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  If either Oli or Ryan Chan doesn’t earn an A, then nobody should, because...
 
+    1.  Oli was an excellent PA partner. He worked with me very efficiently. We were able to communicate well and I could tell that he is very skilled with coding. Even though it was early in the year and we were getting used to the coder/developer roles, I could tell that he was trying
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+    2.  Ryan is one of the people I peer reviewed and he did an absolutely amazing job. His formatting was awesome and his visualizations were great & unique. The major notes I had for him were just visualization choices (like color and text), not necessarily the code itself. Even though I only saw one of his submissions, I could tell he put a lot of effort into his work.
 
+2.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
-3. What was the easiest part of the class for you? Explain why.
+    1.  Outside of class, i would say the most difficult part outside of class was getting through the readings. They were super helpful and filled with valuable information but it oftentimes included information we didn't delve too deep into. The code that we did focus on sometimes wasn't that detailed in the reading. Perhaps I was looking in the wrong spot? It may benefit from bolded sections that include the primary functions we focus on (however the chapter readings might not be your writing and is therefore unalterable). Nevertheless, I found the lecture material incredibly helpful, especially the example problems because then I could see the proper formatting. I really appreciate the detailed and organized slideshow, I'll often go back to compare my notes and the slideshow to confirm my work.
 
+    2.  The most difficult part of in-class work was honestly probably the labs. I sometimes found it difficult to work on them in class because I did not want to bother the other students who perhaps were already ahead of me and I would just be holding them back. I also did not want to overload you, Dr. Theobold, with too many questions (especially when others are asking questions too). Since the labs were assigned on Thursday, there was only one office hours I only sometimes had the time to attend, thus limiting my ability to collaborate with peers and ask questions. Looking back, this was definitely a me problem because I did not want to bother people. Nevertheless, it was still valid. I wanted to submit satisfactory work but oftentimes felt a little overwhelmed and pressured to complete it all on Thursday (otherwise contacting help would be relatively difficult).
 
-4. What part of the class surprised or interested you the most? Explain why.
+3.  What was the easiest part of the class for you? Explain why.
 
+    1.  I found the easiest part of class to be learning code through the lecture. I already mentioned the lecture slides before, I found them to be especially helpful. I found it easy to answer class participation questions and stay engaged with the material. The "pieces of a pie" activity where the table had different slices and we were unable to speak was an activity that especially stood out to me. I think those types of learning tools help students have a more tangible grasp on what code is (or at least, it helped me because otherwise code feels slightly abstract). I really liked the examples that you provided, it helped solidify the information. I feel as though the main reason why I did not do as well when I left for Australia is because I missed the in-person lecture and was unable to participate in class to take notes.
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+4.  What part of the class surprised or interested you the most? Explain why.
+
+    1.  I don't think I was expressly surprised about one thing in particular. Instead, I was surprised by a number of small things. For example, I did not know that coders had the ability to create their own functions. I originally thought that functions where set in stone and you were somewhat limited to what you had and thus had to work around it. I thought that the extent of function efficiency was rooted in functions like across() and map() that worked on multiple things. Building functions is something that is still very impressive to me and I feel that I identifed as a coder more after learning how to make functions. Additionally, I was very interested in the interesing data sets we got to work with. I appreciate that they were not just miscellaneous numbers that had no meaning. I really enjoyed being able to simulate data analysis because it helped me get a grasp as to how it would feel to work on a project using R Coding as the primary means of analysis. My favorite lab was Lab 5. Although it wasn't as structured as the others, I really loved the exploration and mystery.
+
+5.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+
+    1.  Perseverance is very important, especially if your code does not work at first. You just have to keep going. Try to step back and expand your perspective: oftentimes the problem I encounter is not what I expected it to be. Do not overlook the revisions/reflections, it is imortant to really sit with your mistakes and understand how to improve. Lastly, do not be afraid to ask questions. Though you might not have time to dive deep into the core of some of your debugging issues in class, office hours can really help.
