@@ -44,7 +44,7 @@ all_simulations |>
 
 (I mention this in my WD-4 learning objective)
 
-### Reflection Examples
+### Reflections
 
 > Although this was not suggested in my rubric suggestions, I was able to notice an area in which I could improve my code. I’ve found that, over the course of this class, I’ve not only been able to fix my code after suggestions but I have also gotten better at identifying areas of improvement. This is a valuable skill to have because it allows me to think like a coder and actively work on self improvement. 
 
