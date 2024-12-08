@@ -1362,7 +1362,7 @@ randomBabies <- function(nBabies = 4){
 results <- map_int(.x = 1:10000,
                    .f = ~randomBabies(nBabies = 4))
 
-#Lastly, this code is from Lab 8 where I revised lab 3 in question 2. Here, i use map_at() to identify the specfic columns I wanted to alter using as.factor(). This increased efficiency (instead of just using as.factor() on each individual column).
+#Lastly, this code is from Lab 8 Q2 where I revised lab 3 in question 2. Here, i use map_at() to identify the specfic columns I wanted to alter using as.factor(). This increased efficiency (instead of just using as.factor() on each individual column).
 
 evals |>
   head() |> #so you don't have a massive output
@@ -1509,7 +1509,7 @@ inner_join(person,
             )|>
   pull(transcript)
 
-#This is code from Lab 4. Here, i use pivot_wider() and names_prefix() in conjunction, which is a relatively modern approach to what I wanted to do. Instead of using separate functions to pivot and rename the variable, i was able to do it all in one place. 
+#This is code from Lab 4 Q4. Here, i use pivot_wider() and names_prefix() in conjunction, which is a relatively modern approach to what I wanted to do. Instead of using separate functions to pivot and rename the variable, i was able to do it all in one place. 
 ca_childcare |>
   filter(study_year %in% c("2018", 
                            "2008")) |>

@@ -56,15 +56,14 @@ all_simulations |>
 
 > Secondly, I have a reflection from Lab 5, the second to last chunk. 
 >
-> ::: {.callout-note}
->
+> ::: callout-note
 > *Reflection for Find who hired the initial suspect:* *filter(income): Originally I included annual_income and created a column of comparative_income of the average incomes in the dataset to compare. These were variables we could use to determine the suspect considering the fact Jeremy Bowers mentioned that she is a rather wealthy person. Although this is not required (I was able to find the person without using these variables), there **could*** *be an alternate scenario where it does play a role in figuring out the final person. It is useless to create the reference column as well as select annual_income but neglect to use it when filtering. Since I already made the column, I figured it would be best to continue and use it so I included annual_income \> comparative_income. It is more efficient to not use it at all in this scenario or, in the off chance it is important, use it within the filter. In the future, I need to make sure that I value efficiency and precision by not “stopping half way” (selecting but not filtering).*
->
 > :::
 
 > Additionally and more recently, I have a reflection from lab 7 Q4 where I discuss the efficiency of functions: 
 >
-> > ::: {.callout-note}
+> > ::: callout-note
+> > :::
 >
 > *Reflection: I created a line of code that worked just fine but was far too repetitive. Since the callout-tip was presented after the code chunk, I missed the suggestion to use range(). I also was not aware that it was a required function I needed to use that would otherwise receive a growing without because it was presented as just a tip. So, I looked into the range() function used the help of RStudio’s help bar and additional fixing help with ChatGTP. This way, I removed a lot of repetition in regard to the restating (x, na.rm = TRUE). This leads to cleaner and easier to read code. Again, in the future I should read all sections of the instructions to improve my assignments and ensure I do not miss anything important.*
 >
