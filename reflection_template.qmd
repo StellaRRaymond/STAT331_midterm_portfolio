@@ -1437,8 +1437,8 @@ function(df, name){
 #| label: pe-3-map-1
 #This code is from lab 8 Q4 where I find the summaries across the dataframe fish (a single input). 
 tibble(Parameters = names(fish), 
-       Count = map_int(fish,
-                       ~sum(is.na(.x))))|> 
+       Count = map_int(.x = fish,
+                       .f = ~sum(is.na(.x))))|> 
   gt()|>
   tab_header(title = md("Blackfoot River Trout Absent Values"),
              subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout"))
