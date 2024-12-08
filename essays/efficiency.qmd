@@ -1,17 +1,75 @@
 ---
 title: "The Power of Efficiency"
-format: html
+format: 
+  html: 
+    self-contained: true
 editor: visual
+execute: 
+  eval: false
+  echo: true
+  message: false
+code-fold: true
 ---
 
-As we’ve said in the class efficiency is a pivotal component of statistical computing (and data science). In this essay, give an explanation of what that term “efficiency” means in relation to statistical computing and describe some places where you encountered efficiency and understood its importance. Your essay should address the following questions:
+(had fun with callout-note after seeing your callout-tips. so i looked it up and used this website for help) <https://quarto.org/docs/authoring/callouts.html>
 
--   What is the definition of “efficiency”?
+### Definition
 
--   What does efficiency look like in statistical computing / data science?
+> Generally, I would define efficiency as the ability to produce a desired outcome with minimal complexities or convolution (as compared to alternative means of preforming that outcome). In short, it is using the smallest amount of input to yield the same result as other less efficient means, saving time and effort. More specifically, in statistical computing, being able to code efficiently means choosing to utilize functions that minimize clutter and repetition, allowing for a more automated and organized result. Due to the nature of code, developers are given building blocks to craft desired outputs. For this reason, there is an immense degree of flexibility when it comes to how that output can be achieved. 
 
--   What does efficiency allow you to do?
+### Importance
 
--   Why is efficiency important?
+> Efficient data is far more ideal (primarily for the coder but also for the intended audience) so learning how to remain efficient is a useful skill to have. This is true for a variety of reasons. For one, it may function to help minimize the risk of bugs. The more code there is, the greater likelihood that something will go wrong. Automating such that a single line could identify inputs of interest may eliminate further error. Another reason is it can be faster for the developer. Oftentimes, there is a lot of work that developers have to go through so learning efficient practices can expedite this process. Additionally, it allows you to remain organized. Developers have a great deal of code to sort through so with less code and a more concise area of interest, locating bugs can become easier. Additionally, it minimizes the overwhelm of having a massive chunk of text which can often be difficult to read and interpret. Overall, efficiency makes code more professional and easier to work with. 
 
--   Where did you encounter efficiency, and what were some [“a-ha” moments](https://www.merriam-webster.com/dictionary/aha%20moment) you had about efficiency? (For the latter, tie each a-ha moment to an artifact in the portfolio.)
+### Example
+
+> I wanted to direct your attention to a recent alteration I made. I was selecting code to use for my revisions and stumbled upon my code from lab 9 question 8. Here, I use a relatively methods to alter the names of the columns and I change the code as seen below:
+
+```{r}
+all_simulations |>
+  mutate(n = as.character(n), 
+         n = fct_recode(n, 
+             `10 Simulations` = "10", 
+             `100 Simulations` = "100", 
+             `1000 Simulations` = "1000", 
+             `10000 Simulations` = "10000"))
+
+#I quickly realised that this was not as efficient as it could/should be. I loaded in the stringr package and altered the code such that it added " Simulations" to the end. 
+
+all_simulations |>
+  mutate(n = str_glue("{n} Simulations"),
+         n = as.character(n))
+
+```
+
+(I mention this in my WD-4 learning objective)
+
+### Reflection Examples
+
+> Although this was not suggested in my rubric suggestions, I was able to notice an area in which I could improve my code. I’ve found that, over the course of this class, I’ve not only been able to fix my code after suggestions but I have also gotten better at identifying areas of improvement. This is a valuable skill to have because it allows me to think like a coder and actively work on self improvement. 
+
+> Lastly, I wanted to provide some of my reflections regarding efficiency. Below are two reflections from Lab 5. Here is a revision reflection I included in Lab 5, chunk 2
+>
+> ::: callout-note
+> *Reflection for find interviews from two witnesses: My first version of this code had separate chunks for interviewed individual 1 and individual 2. The result was correct and gave me useful information but it required two separate chunks. However, this is spread out and a highly inefficient. Just like it is good to minimize the number of intermediates, it is preferable to limit the number of code chunks. This is especially true when the two chunks are strongly related and I could simplify the output. Although these individual code chunks give me the same output in the end (their individual interviews), practicing organized coding methods helps efficiency and planning. For these reasons, I need to not only consider the final output but also the road to get there.*
+> :::
+
+> Secondly, I have a reflection from Lab 5, the second to last chunk. 
+>
+> ::: {.callout-note}
+>
+> *Reflection for Find who hired the initial suspect:* *filter(income): Originally I included annual_income and created a column of comparative_income of the average incomes in the dataset to compare. These were variables we could use to determine the suspect considering the fact Jeremy Bowers mentioned that she is a rather wealthy person. Although this is not required (I was able to find the person without using these variables), there **could*** *be an alternate scenario where it does play a role in figuring out the final person. It is useless to create the reference column as well as select annual_income but neglect to use it when filtering. Since I already made the column, I figured it would be best to continue and use it so I included annual_income \> comparative_income. It is more efficient to not use it at all in this scenario or, in the off chance it is important, use it within the filter. In the future, I need to make sure that I value efficiency and precision by not “stopping half way” (selecting but not filtering).*
+>
+> :::
+
+> Additionally and more recently, I have a reflection from lab 7 Q4 where I discuss the efficiency of functions: 
+>
+> > ::: {.callout-note}
+>
+> *Reflection: I created a line of code that worked just fine but was far too repetitive. Since the callout-tip was presented after the code chunk, I missed the suggestion to use range(). I also was not aware that it was a required function I needed to use that would otherwise receive a growing without because it was presented as just a tip. So, I looked into the range() function used the help of RStudio’s help bar and additional fixing help with ChatGTP. This way, I removed a lot of repetition in regard to the restating (x, na.rm = TRUE). This leads to cleaner and easier to read code. Again, in the future I should read all sections of the instructions to improve my assignments and ensure I do not miss anything important.*
+>
+> :::
+
+### Closing
+
+> Whether it be making code efficient to begin with, after outsider review, or my own review, I believe I have improved my ability to work efficiently. I have altered my outlook on efficiency and have grown to value it as a primary focus of my work. I am thankful to have developed efficiency skills such that I can use them for my future endeavors.

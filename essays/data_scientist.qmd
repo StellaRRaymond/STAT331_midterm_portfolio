@@ -1,11 +1,115 @@
 ---
 title: "My Growth as a Data Scientist"
-format: html
+format: 
+  html: 
+    self-contained: true
 editor: visual
+execute: 
+  eval: false
+  echo: true
+  message: false
+code-fold: true
 ---
 
-***Describe how you have improved as a practitioner and student of data science this quarter through your work in the course.***
+### Efficiency & Organization
 
--   Focus specifically on data science concepts and the skills we employed in learning them, not a laundry list of topics that you learned (those are in the syllabus, so I know them already).
+> There are a wide variety of ways I have grown as a coder, all of which have helped me work towards my future research-based career. For one, I’ve learned to importance of efficiency and clean data: skills we’ve emphasized from the beginning of the quarter and I have grown to value. Although I will delve deeper into efficiency in my second essay, I wanted to mention how my perception has changed. In the beginning, I viewed these qualities as factors taken into the grading rubric. I thought that code cleanliness was largely for the audience’s benefit. However, as time went on, I noticed that clean and efficient code was primarily beneficial to the developer of the code. The more organized and compact I kept my code, the easier it was to revise and sort through. In a way, these skills taught me how to anticipate. Developing these skills helped me in the long run, when I needed to check over my work and in the longer run, for future endeavors.
+>
+> > For example, below is a massive chunk of code (Lab 4) that I was able to keep tidy:
 
--   Focus on a small number of specific areas of growth for you that happened in STAT 331. Identify at least one artifact in your portfolio that illustrates each area of growth and explain how this artifact shows growth in the way you are describing.
+```{r}
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, 
+                                  " County"),
+         region = fct_collapse(.f = county_name,
+                               "Superior California" = c("Butte", 
+                                                         "Colusa", 
+                                                         "El Dorado", 
+                                                         "Glenn", 
+                                                         "Lassen", 
+                                                         "Modoc", "Nevada", 
+                                                         "Plumas", 
+                                                         "Sacramento", 
+                                                         "Shasta", 
+                                                         "Sierra", 
+                                                         "Siskiyou", 
+                                                         "Sutter", 
+                                                         "Tehama", 
+                                                         "Yolo", 
+                                                         "Yuba", 
+                                                         "Placer"),
+                               "San Francisco Bay Area" = c("Alameda", 
+                                                            "Contra Costa", 
+                                                            "Marin", 
+                                                            "San Francisco", 
+                                                            "San Mateo", 
+                                                            "Santa Clara", 
+                                                            "Solano"),
+                               "North Coast" = c("Del Norte", 
+                                                 "Humboldt", 
+                                                 "Lake", 
+                                                 "Mendocino", 
+                                                 "Napa", 
+                                                 "Sonoma", 
+                                                 "Trinity"),
+                               "Orange County" = c("Orange"),
+                               "Central Coast" = c("Monterey", 
+                                                   "San Benito", 
+                                                   "San Luis Obispo", 
+                                                   "Santa Barbara", 
+                                                   "Santa Cruz", 
+                                                   "Ventura"),
+                               "Northern San Joaquin Valley" = c("Alpine", 
+                                                                 "Amador", 
+                                                                 "Calaveras", 
+                                                                 "Madera", 
+                                                                 "Mariposa", 
+                                                                 "Merced", 
+                                                                 "Mono", 
+                                                                 "San Joaquin", 
+                                                                 "Stanislaus", 
+                                                                 "Tuolumne"),
+                               "Los Angeles County" = c("Los Angeles"),
+                               "Southern San Joaquin Valley" = c("Fresno", 
+                                                                 "Kern", 
+                                                                 "Kings", 
+                                                                 "Inyo", 
+                                                                 "Tulare"),
+                               "Inland Empire" = c("Riverside", 
+                                                   "San Bernardino"),
+                               "San Diego Imperial" = c("San Diego", 
+                                                       "Imperial")))
+```
+
+> In the case there was a problem with this code (say, I incorrectly put Humboldt in the Inland Empire = c(), for example), it would be easy to find the problem. They are all lined up based on their first letter so I would have an easier time looking for "H" in a straight line as opposed to a sea of text
+
+### Results Through Various Means
+
+> Additionally, I learned how to manipulate data. I hadn’t realized the extent of how data can be manipulated and was surprised at the possibilities. Of course, as mentioned, there are some ways that are more efficient than others but being able to be flexible with code manipulations allows for a more wholistic view. Learning how to transform my work allowed me to take on a new perspective when approaching data.
+>
+> > For example, I discovered I could utilize an anti_join (Lab 5) in the following way:
+
+```{r}
+suspect <- anti_join(person,
+                     interview,
+                     join_by(id == person_id))|>
+  select(name)|>
+  filter(str_detect(name, "Miranda Priestly"))
+
+  if (nrow(suspect) > 0) 
+     {print("Suspicious = TRUE")
+      } else{print("Suspicious = FALSE")
+      }
+```
+
+> Being able to use multiple functions to achieve the same outcome has given me the ability to work with my data in a new way, shifting my thought process. In this code, for example, I was in a way thinking “in the negative” by phasing out all individuals present in the interviews set. In my midterm portfolio, I was unable to utilize the anti_join() and decided to wait. In my final portfolio, I use a Lab I had access to during my midterm, demonstrating my growth in perspective.
+
+### Altered Perspective
+
+> I also learned that oftentimes the difficulty I am encountering with my code is not the root of the issue. This does not necessarily indicate lack of proficiency but instead has taught me to address my problems with an open mind. In the beginning, I would automatically jump to conclusions and assume I understood the problem area. Recently, I’ve taken a more methodical approach. Over the course of this class, I have broadened my viewpoint and feel myself walking through difficulties gradually, starting from the bigger picture. 
+
+### Group Work
+
+> Lastly, I’ve not only grown as an individual but also as a team player. When first starting the partnered practice activities, I found it somewhat difficult to stick to the given roles. I would often either mess up and not know how to answer a problem as a developer or want to provide my input as a coder. As time went on, I felt as though I not only produced better work, I also was able to communicate my difficulties and suggestions. I became better at acknowledging areas of improvement and expressing my thought process. With these developments, I had an easier time debugging with my partners and working from there. Furthermore, as a coder, I learned how to alter my language to create an effective conversation. It was no longer miscellaneous pieces of advice but instead a dialogue on how to solve a problem. 
+>
+> With these areas of growth, I am more confident in my abilities as a practitioner and student of data science.

@@ -12,7 +12,9 @@ execute:
   message: false
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an -A.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an A.
+
+(I really should have taken this class as graded. I currently have it as credit/no credit. I just didn't want to stress over it but I don't think c/nc changed that in hindsight).
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -114,13 +116,7 @@ person |>
 
 ```{r}
 #| label: wd-3-factor
-#Here is code from lab 4 question 2 where I filter out the dataset to only have califronian values. 
-ca_childcare <- counties |>
-  filter(state_abbreviation == "CA") |>
-  left_join(childcare_costs,
-            by = join_by(county_fips_code == county_fips_code))
-
-#additionally, this is a line of code from lab 9 question 1 where I filter the correctly paired families in order to count up the total correctly randomized families (absent of FALSE values).
+#This is a line of code from lab 9 question 1 where I filter the correctly paired families filter(paired == "TRUE") in order to count up the total correctly randomized families (absent of FALSE values).
 
 randomBabies <- function(nBabies = 4){
   baby_tib <- tibble(pnum  = 1:nBabies,
@@ -140,7 +136,7 @@ randomBabies <- function(nBabies = 4){
 
 ```{r}
 #| label: wd-3-date
-#This code comes from Lab 5. Originally, I did not convert the dates into lubridate dates (or even utilize the dates as an important means of finding the person). However, I recently looked back and saw that Miranda went to the symphony *specifically* in december 2017. I revisited this code and filtered the year 2017 and the month 12 to ensure that she was the culprit. 
+#This code comes from Lab 5. Originally, I did not convert the dates into lubridate dates (or even utilize the dates as an important means of finding the person). However, I recently looked back and saw that Miranda went to the symphony *specifically* in december 2017. I revisited this code and filtered the year 2017 and the month 12 to ensure that she was the culprit. (code near the end, by the way)
 inner_join(person,
            drivers_license,
            join_by(license_id == id)) |>
@@ -194,7 +190,7 @@ clean_evals <- evals |>
 
 ```{r}
 #| label: wd-4-string
-#This code originates from Lab 9. It is my submitted code but I realized that I could do better. I could automate the alterations by using stringr. (see beneath this line of code).
+#This code originates from Lab 9 question 8. It is my submitted code but I realized that I could do better. I could automate the alterations by using stringr. (see beneath this line of code).
 all_simulations |>
   mutate(n = as.character(n), 
          n = fct_recode(n, 
@@ -339,7 +335,7 @@ inner_join(person,
 -   `full_join()`
 
 ```{r}
-#| label: wd-5-full
+#| label: wd-5-full-not-needed
 #This code originates from lab 5 where I have altered my original code. Here, I utilize a full_join() to incorpreate the data from the interview dataframe in order to go straight from the 2 witnesses to the transcripts.
 person |> 
   full_join(interview,
@@ -395,7 +391,7 @@ inner_join(person,
 
 ```{r}
 #| label: wd-6-anti
-#This code originates from Lab 5 and it is the very last code chunk confirming who the final suspect is. I created this code after submission, atering it from my original code. Let me walk you thought process. 
+#This code also originates from Lab 5 and it is the very last code chunk confirming who the final suspect is. I created this code after submission, atering it from my original code. Let me walk you thought process. 
 #I used an anti join between the person and interview. This only keeps the people who are NOT included in the interview dataset. I then specifically look for Miranda. If she did have an interview, her name would not be present. If she DIDN'T have an interview, her name would show up. So, if she is suspiciously without an interview, it would return true (and false if not).
 
 suspect <- anti_join(person,
@@ -579,7 +575,7 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: r-2-3
-#*
+#Here is a line of code from Lab 8 question 4/5 after my revision. Here, I format a function such that it has multiple function stops and efficiency (by using ranging). 
 
 rescale_01 <- function(x, na.rm = TRUE){
   if(!is.numeric(x) | length(x) <= 1)
@@ -588,6 +584,16 @@ rescale_01 <- function(x, na.rm = TRUE){
                    na.rm = na.rm)
   return((x - ranging[1]) / 
            (ranging[2] - ranging[1]))}
+
+#I also create another function in this lab (Question 8) seen below. It is properly formatted and has function stops (after revisions).
+
+rescale_column <- function(df, name){
+  if(!is.data.frame(df))
+  {stop("change input")}
+  df |> 
+    mutate(across(.cols = {{name}},
+                  .fns = ~rescale_01(.x)))
+  }
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -606,8 +612,7 @@ ca_childcare |>
   summarise(median_region = median(mcsa))|>
   slice_min(median_region)
 
-#Additionally, I also use summarise in the context of multiple columns. This code originates from Lab 7
-
+#Additionally, I also use summarise in the context of multiple columns (not just specificly named columns). This code originates from Lab 7.
 fish |>
   summarize(across(.cols = trip:species,
                    .fns = ~sum(is.na(.x)
@@ -639,12 +644,53 @@ rescale_01 <- function(x, na.rm = TRUE){
 
 ```{r}
 #| label: dvs-1-num
-#
+#This code is from Lab 4 question 7 and I like how I added the colors and an extra variable (region) just to see how it would look, i thought that was pretty cool. I also added dollar signs to both axes just now.
+ca_childcare |>
+  filter(study_year == "2018") |>
+  select(mhi_2018,
+         mc_infant,
+         study_year,
+         region) |>
+  ggplot(mapping = aes(x = mhi_2018, 
+                       y = mc_infant,
+                       color = region)
+         )+
+  geom_jitter()+
+  geom_smooth(method = lm, 
+              color = "green4")+
+  scale_y_continuous(labels = label_dollar()) +
+  scale_x_continuous(labels = label_dollar()) +
+  theme_bw()+
+  labs(title = "Household Income and Weekly Price of 2018 Center-Based Infant Childcare",
+       x = "Median Weekly Household Income",
+       y = "",
+       subtitle = "Y-axis representing Full-Time Median Weekly Price",
+       color = "California Region")
 
+#This code originates from lab 7 Q7 and compares the original to the rescaled plot. I include this because i am proud of how similar I made the graphs.
+fish |>  
+  ggplot(aes(x = length)) + 
+  geom_histogram(binwidth = 45) +
+  labs(x = "Original Values of Fish Length (mm)",
+       y = "",
+       subtitle = "y-axis representing Count",
+       title = "Blackfoot River Trout Lengths") +
+  scale_y_continuous(limits = c(0,4000)) +
+  theme_bw(base_family = "sans")
+# Code for Q7 plot.
+fish |>  
+  mutate(length_scaled = rescale_01(length))|>
+  ggplot(aes(x = length_scaled)) + 
+  geom_histogram(binwidth = .043) +
+  labs(x = "Scaled Values of Fish Length (mm)",
+       y = "",
+       subtitle = "y-axis representing Count",
+       title = "Blackfoot River Trout Lengths") +
+  scale_y_continuous(limits = c(0,4000)) +
+  theme_bw(base_family = "sans")
 
-#This code originates from Lab 9 question 3. Here, I visualize the 
+#This code originates from Lab 9 question 3. Here, I visualize the number of babies correctly returned.
 #as mentioned, font change help by means of the help bar in RStudio
-
 baby_table |>
   ggplot(mapping = aes(x = ncorrect, 
                        y = proportion)) +  
@@ -694,6 +740,44 @@ surveys |>
        y = "", 
        subtitle = "Species", 
        legend = "Genus")
+
+#I also added this graph as a second example. This one is from challenege 3 Q2 and the two cat variables are SET_level and sen_level. I like the annotations I added
+
+teacher_evals_compare |>
+ggplot(mapping=aes(x = sen_level, 
+                   fill = SET_level)) +
+  
+  theme_bw()+
+  scale_fill_manual(values = c("#2d73b5",
+                               "#c97a0a")) +
+  geom_bar(show.legend = FALSE) +
+  annotate("text", 
+           y = 50,
+           x = "senior", 
+           label = "Standard", 
+           color = "white") +
+  annotate("text", 
+           y = 250, 
+           x = "senior", 
+           label = "Excellent", 
+           color = "white") +
+  annotate("text", 
+           y = 25, 
+           x = "junior", 
+           label = "Standard", 
+           color = "white") +
+  annotate("text", 
+           y = 175, 
+           x = "junior", 
+           label = "Excellent", 
+           color = "white") +
+  labs(title = "Evaluation of In-Class Activity Use by Instructor Seniority",
+       x="Seniority of Instructor",
+       y="",
+       subtitle = "Number of Sections",
+       fill = "SET Level")
+#recently added show.legend = FALSE after you suggested to remove the legend*
+
 ```
 
 -   dates (timeseries plot)
@@ -701,7 +785,7 @@ surveys |>
 ```{r}
 #| label: dvs-2-date
 
-
+#This plot is from lab 4 question 6. I do a lot of adjustments to make sure it all fit. I also added nice labels, coloring, and size changes. The time series is in years
 ca_childcare |>
   select(region, 
          study_year, 
@@ -982,7 +1066,7 @@ baby_table |>
 
 ```{r}
 #| label: dvs-4-summarize
-#Here is an example from Lab 4 question 4 where I utilize summarise to create a new median_region variable
+#Here is an example from Lab 4 question 4 where I utilize summarise to create a new median_region variable. 
 ca_childcare |>
   filter(study_year %in% c("2018", 
                            "2008")) |>
@@ -997,6 +1081,14 @@ ca_childcare |>
              names_prefix = "mhi_in_")|>
   ungroup()
 #fixed the grouping after midterm portfolio suggestion
+
+#Additionally, I also use summarise in the context of multiple columns. This code originates from Lab 7, question 1.
+fish |>
+  summarize(across(.cols = trip:species,
+                   .fns = ~sum(is.na(.x)
+                               )
+                   )
+            )
 ```
 
 -   Example using `across()`
@@ -1009,8 +1101,8 @@ rescale_column <- function(df, name){
   if(!is.data.frame(df))
   {stop("change input")}
   df |> 
-    mutate(across(.cols = {{name}},
-                  .fns = ~rescale_01(.x)))
+  mutate(across(.cols = {{name}},
+                .fns = ~rescale_01(.x)))
   }
 ```
 
@@ -1034,6 +1126,14 @@ ca_childcare |>
              values_from = median_region,
              names_prefix = "mhi_in_")|>
   ungroup()
+
+#Additionally, I use summarise in the context of multiple columns by use of across(). This code originates from Lab 7.
+fish |>
+  summarize(across(.cols = trip:species,
+                   .fns = ~sum(is.na(.x)
+                               )
+                   )
+            )
 ```
 
 -   Example 2
@@ -1122,7 +1222,8 @@ tibble(Parameters = names(fish),
 
 ```{r}
 #| label: dvs-7-1
-#*
+#This code is from challenge 9 (but originally lab 8 Q1). Here, I use unusual colors (i liked them because they were not too stand out but still showed a subtile difference). I also use gt() to change the title/subtitle.
+
 tibble("Column Name" = colnames(surveys),
        "Value Type" = map_chr(.x = surveys, 
                               .f = typeof)) |>
@@ -1173,8 +1274,8 @@ clean_evals <- evals |>
   mutate(sex = gender,
          teacher_id = as.factor(teacher_id),
          question_no = question_no-900)
-#I also use efficiency by using one function to do the work of one. For example, in this code chunk from Lab 8 question 3, I pivot twice then use the select() function to both select the columns I want as well as rename the columns (instead of using select then rename). I am especially proud of my ability to replicate this table without asking for assistance. 
 
+#I also use efficiency by using one function to do the work of one. For example, in this code chunk from Lab 8 question 3, I pivot twice then use the select() function to both select the columns I want as well as rename the columns (instead of using select then rename). I am especially proud of my ability to replicate this table without asking for assistance. 
 evals |>
   mutate(seniority_level = if_else(seniority <= 4,
                              "junior",
@@ -1238,7 +1339,6 @@ rescale_column <- function(df, name){
 #| label: pe-1-map-1
 
 #This code originates from Lab 9 Question 6. Here, I utilize pmap() to analyze probability. 
-
 all_simulations <- grid |> 
   mutate(simulated_m = pmap(.l = list(n = n,
                                       df = df), 
@@ -1283,15 +1383,16 @@ evals |>
 
 ```{r}
 #| label: pe-2-1
-#This is from Lab 2 Challenge (chunk 1). Here I create a vector to house the colors I wanted for my graph. then I use the vector to color the graph
-Palette_Earth <- c("#a0eb67", "#83ba59", "#3e6b1b", "#78eb05", "#ffd673", "#c99f3a", "#8a6204", "#d9cb0f")
+#This is from Lab 7 question 4/5. Here I create a function that takes a single vector (and has a check for that vector).
+rescale_01 <- function(x, na.rm = TRUE){
+  if(!is.numeric(x) | length(x) <= 1)
+  {stop("change input")}
+  ranging <- range(x, 
+                   na.rm = na.rm)
+  return((x - ranging[1]) / 
+           (ranging[2] - ranging[1]))}
 
-surveys |> 
-  ggplot(aes(x = weight, y = species, color = genus)
-         ) +
-  geom_boxplot() +
-  scale_color_manual(values = Palette_Earth) +
-  labs(x = "Weight (g)", y = "", subtitle = "Species", legend = "Genus")
+
 ```
 
 -   Function that operates on data frames
@@ -1319,7 +1420,7 @@ fish |>
 
 ```{r}
 #| label: pe-3-across
-#Again, this code originates from lab question 8. Here, I use across such that I can rescale_01() multiple columns at once instead of repeating the same code. 
+#Again, this code originates from lab question 8. Here, I use across such that I can rescale_01() multiple columns at once instead of repeating the same code. This increases efficiency and allows me to write a single line instead of a lot of lines
 
 function(df, name){
   if(!is.data.frame(df))
@@ -1334,22 +1435,36 @@ function(df, name){
 
 ```{r}
 #| label: pe-3-map-1
-#*
-
+#This code is from lab 8 Q4 where I find the summaries across the dataframe fish (a single input). 
 tibble(Parameters = names(fish), 
        Count = map_int(fish,
                        ~sum(is.na(.x))))|> 
   gt()|>
   tab_header(title = md("Blackfoot River Trout Absent Values"),
              subtitle = md("Rainbow, Westslope Cutthroat, Bull, & Brown trout"))
+
+#This code originates from Lab 9 but from Question 1. Here, I utilize map_int to simulate 10,000 simulations from the randomBabies code using a single input
+randomBabies <- function(nBabies = 4){
+  baby_tib <- tibble(pnum  = 1:nBabies,
+                     bbnum = sample(1:nBabies, 
+                                      size = nBabies, 
+                                      replace = FALSE)) |>
+  mutate(paired = if_else((pnum == bbnum), 
+                          "TRUE", 
+                          "FALSE")) |>
+  filter(paired == "TRUE") |>
+  nrow()
+  return(baby_tib)}
+
+results <- map_int(.x = 1:10000,
+                   .f = ~randomBabies(nBabies = 4))
 ```
 
 -   `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
 
 ```{r}
 #| label: pe-3-map-2
-#* 
-
+#Here, i am mapping the function as_factor() at many diffferent locations within the evals df. This is from lab 8, Q2 (but given greater fanciness with lab 9 Challenge)
 evals |>
   head() |> #so you don't have a massive output
   map_at(.at = c("teacher_id", 
@@ -1357,7 +1472,17 @@ evals |>
                "academic_degree", 
                "seniority",
                "gender"),
-         .f = ~as.factor(.x))
+         .f = ~as.factor(.x))|>
+  bind_cols()|>
+  kable()|>
+  kable_classic(lightable_options = "hover")
+
+#I also use p_map() in lab 9 Q6.
+all_simulations <- grid |> 
+  mutate(simulated_m = pmap(.l = list(n = n,
+                                      df = df), 
+                            .f = simulate_means)) |> 
+  unnest(simulated_m)
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -1476,19 +1601,17 @@ results <- map_int(.x = 1:10000,
 #| label: dsm-1-2
 # This code originates from Lab 9 (the extra questions). Here, I utilize rchisq() and create a function to help me mass simulate using the chi squared probability model. 
 simulate_means <- function(n, df){
-  map_dbl(.x = 1:100, #*****
-          .f = ~rchisq(n = n, df = df) |> 
+  map_dbl(.x = 1:n, #simulation amount fixed
+          .f = ~rchisq(n = 100, df = df) |> 
           mean()
           )
 }
 # I then apply it by creating a grid and applying it as a list
-
 grid <- crossing(n = c(10,
                        100,
                        1000,
                        10000), 
-                 df = 10)
-#df was changed after feedback
+                 df = 10) #df was changed after feedback
 all_simulations <- grid |> 
   mutate(simulated_m = pmap(.l = list(n = n,
                                       df = df), 
