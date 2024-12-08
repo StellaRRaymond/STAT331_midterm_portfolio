@@ -11,6 +11,8 @@ execute:
 code-fold: true
 ---
 
+Final Submission
+
 ### Efficiency & Organization
 
 > There are a wide variety of ways I have grown as a coder, all of which have helped me work towards my future research-based career. For one, I’ve learned to importance of efficiency and clean data: skills we’ve emphasized from the beginning of the quarter and I have grown to value. Although I will delve deeper into efficiency in my second essay, I wanted to mention how my perception has changed. In the beginning, I viewed these qualities as factors taken into the grading rubric. I thought that code cleanliness was largely for the audience’s benefit. However, as time went on, I noticed that clean and efficient code was primarily beneficial to the developer of the code. The more organized and compact I kept my code, the easier it was to revise and sort through. In a way, these skills taught me how to anticipate. Developing these skills helped me in the long run, when I needed to check over my work and in the longer run, for future endeavors.
